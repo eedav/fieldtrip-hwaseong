@@ -25,7 +25,14 @@
 
 *{box-sizing:border-box}
 body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 80px}
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 calc(100px + env(safe-area-inset-bottom,0px))}
+.actionbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:color-mix(in srgb,var(--sheet) 94%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-top:1px solid var(--rule);
+  padding:8px max(12px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.actionbar .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px}
+.ab{font:inherit;font-size:13.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:1.5px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:10px;padding:6px 4px;cursor:pointer;min-width:0}
+.ab svg{width:20px;height:20px;flex:none}
+.ab.main{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.ab:focus-visible{outline:3px solid color-mix(in srgb,var(--site) 55%,transparent);outline-offset:2px}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
 body[data-area="uum"]{--site:var(--uum);--site-soft:var(--uum-soft)}
 body[data-area="end"],body[data-area="report"]{--site:var(--end);--site-soft:var(--end-soft)}
@@ -33,8 +40,14 @@ body[data-area="end"],body[data-area="report"]{--site:var(--end);--site-soft:var
 
 /* 공룡알 부화 띠 */
 .eggbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;background:var(--paper);padding-block:8px;border-bottom:1px solid var(--rule);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)))}
-.eggbar .in{max-width:760px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:12px}
-.eggbar svg.egg{width:50px;height:60px;flex:none;overflow:visible}
+.eggbar .in{max-width:760px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:8px}
+.eggrow{display:flex;align-items:center;gap:12px}
+.strip{display:flex;flex-direction:column;gap:6px}
+.striprow{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px));padding-bottom:2px}
+.striprow::-webkit-scrollbar{display:none}
+.strip .grp{flex:none;align-self:center;font-family:var(--f-display);font-weight:700;font-size:12px;color:var(--c);padding-left:4px}
+.strip .np{flex:none;white-space:nowrap;min-height:38px}
+.eggbar svg.egg{width:40px;height:48px;flex:none;overflow:visible}
 .egginfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .egghead{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 .egghead b{font-family:var(--f-display);font-size:15px}
@@ -43,7 +56,7 @@ body[data-area="end"],body[data-area="report"]{--site:var(--end);--site-soft:var
 .pips{display:flex;gap:5px}
 .pip{width:100%;max-width:26px;height:7px;border-radius:4px;background:var(--grid);border:1px solid var(--rule)}
 .pip.on{background:var(--gold);border-color:var(--gold)}
-.eggmsg{font-size:13px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eggmsg{font-size:12.5px;line-height:1.4;color:var(--ink-2)}
 .eggmsg button{font:inherit;font-weight:600;color:var(--gold);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
 .egg .shell{transform-box:fill-box;transform-origin:50% 90%}
 .egg.shake .shell{animation:shake .6s ease}
@@ -60,7 +73,15 @@ body[data-area="end"],body[data-area="report"]{--site:var(--end);--site-soft:var
 .celebrate p{margin:0;font-size:16px}
 .celebrate .who{font-family:var(--f-hand);font-size:30px;line-height:1.2}
 
-header.top{display:flex;flex-direction:column;gap:12px;padding-top:16px}
+header.top{display:flex;flex-direction:column;gap:10px;padding-top:14px}
+.infocard{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;display:flex;flex-direction:column}
+.infosum{font:inherit;text-align:left;background:none;border:0;color:var(--ink);padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;min-height:48px}
+.infosum .sum{flex:1;min-width:0;font-size:15px}
+.infosum .sum b{font-family:var(--f-display)}
+.infosum .sum .muted{font-size:13.5px}
+.infosum .edit{font-size:13px;font-weight:600;color:var(--site);flex:none}
+.infocard .info{padding:0 14px 14px}
+.infodone{display:flex;justify-content:flex-end}
 .eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;color:var(--ink-2);text-transform:uppercase}
 h1{font-family:var(--f-display);font-weight:800;font-size:clamp(24px,6vw,32px);line-height:1.2;margin:0;text-wrap:balance;letter-spacing:-.01em}
 .info{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
@@ -71,7 +92,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--site);box-shadow:0 0 
 textarea{min-height:100px;resize:vertical;line-height:1.65}
 textarea::placeholder,input::placeholder{color:color-mix(in srgb,var(--ink-2) 75%,transparent)}
 .weather{display:flex;flex-wrap:wrap;gap:6px}
-.wx{font:inherit;font-size:14px;border:1.5px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+.wx{font:inherit;font-size:14.5px;border:1.5px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:6px 13px;min-height:38px;cursor:pointer}
 .wx[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 .status{font-family:var(--f-mono);font-size:12px;color:var(--ink-2);display:flex;align-items:center;gap:6px}
 .status i{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}
@@ -108,7 +129,28 @@ section.block{background:var(--sheet);border:1px solid var(--rule);border-radius
 .block h3 .hint{font-family:var(--f-body);font-weight:400;font-size:13px;color:var(--ink-2)}
 
 .slots{display:flex;flex-direction:column;gap:14px}
-.slot{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:12px;align-items:start;padding-top:12px;border-top:1px dashed var(--rule)}
+.slot{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px dashed var(--rule)}
+.imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.imgcard{display:flex;flex-direction:column;gap:6px;min-width:0}
+.imgcard input{font-size:14px;padding:7px 9px}
+.imgcard .mact{gap:5px}
+.imgcard .mini{font-size:13px;padding:5px 9px;min-height:34px}
+.tw{position:relative}
+.xdel{position:absolute;right:5px;top:5px;width:30px;height:30px;border-radius:50%;border:0;background:rgba(20,26,25,.72);color:#fff;font-size:19px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.addrow{display:flex;gap:8px}
+.addrow .btn{flex:1;justify-content:center}
+.locbox{display:flex;flex-direction:column;gap:8px;background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:12px 14px}
+.loctitle{font-family:var(--f-display);font-weight:700;font-size:15px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.loctitle span{font-family:var(--f-body);font-weight:400;font-size:13px;color:var(--ink-2)}
+.locline{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;color:var(--ink);overflow-wrap:anywhere}
+.locrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+a.mini{text-decoration:none;display:inline-flex;align-items:center;color:var(--site);font-weight:600}
+.locerr{font-size:13.5px;color:var(--danger);margin:0}
+.rep-slot{display:flex;flex-direction:column;gap:6px}
+.rep-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px}
+.rep-imgs figure{margin:0}
+.rep-imgs img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;border:1px solid var(--rule)}
+.rep-imgs figcaption{font-size:12px;color:var(--ink-2)}
 .slot:first-child{border-top:0;padding-top:0}
 .slot-lab{grid-column:1/-1;font-family:var(--f-display);font-weight:700;font-size:14px;color:var(--site);margin-bottom:-4px}
 .simg{display:flex;flex-direction:column;gap:6px;min-width:0}
@@ -117,14 +159,14 @@ section.block{background:var(--sheet);border:1px solid var(--rule);border-radius
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .kind{position:absolute;left:6px;top:6px;font-family:var(--f-mono);font-size:10.5px;background:rgba(20,26,25,.75);color:#fff;border-radius:4px;padding:1px 6px}
 .mact{display:flex;flex-wrap:wrap;gap:6px}
-.mini{font:inherit;font-size:12.5px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink-2);border-radius:6px;padding:4px 8px;cursor:pointer}
+.mini{font:inherit;font-size:13.5px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink-2);border-radius:7px;padding:6px 10px;min-height:36px;cursor:pointer}
 .mini.del{color:var(--danger)}
-.slot textarea{min-height:100%;height:100%}
+.slot textarea{min-height:110px}
 .stext{display:flex;flex-direction:column;min-width:0;align-self:stretch}
 .stext textarea{flex:1;min-height:120px}
 
 .btnrow{display:flex;flex-wrap:wrap;gap:8px}
-.btn{font:inherit;font-weight:600;font-size:15px;border-radius:9px;padding:9px 14px;cursor:pointer;border:1.5px solid var(--site);background:var(--site);color:var(--sheet);display:inline-flex;align-items:center;gap:8px}
+.btn{font:inherit;font-weight:600;font-size:15px;border-radius:9px;padding:9px 14px;min-height:42px;cursor:pointer;border:1.5px solid var(--site);background:var(--site);color:var(--sheet);display:inline-flex;align-items:center;gap:8px}
 .btn.sm{font-size:14px;padding:7px 11px}
 .btn.ghost{background:transparent;color:var(--site)}
 .btn.plain{border-color:var(--rule);background:var(--sheet);color:var(--ink)}
@@ -133,7 +175,7 @@ section.block{background:var(--sheet);border:1px solid var(--rule);border-radius
 .btn:focus-visible,button:focus-visible{outline:3px solid color-mix(in srgb,var(--site) 55%,transparent);outline-offset:2px}
 
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{font:inherit;font-size:14.5px;font-weight:500;border:1.5px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:6px 13px;cursor:pointer}
+.chip{font:inherit;font-size:15px;font-weight:500;border:1.5px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:7px 14px;min-height:40px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--site);border-color:var(--site);color:var(--sheet)}
 .chip.custom{border-style:dashed}
 .addkw{display:flex;gap:8px}
@@ -157,16 +199,18 @@ section.block{background:var(--sheet);border:1px solid var(--rule);border-radius
 .muted{color:var(--ink-2)}
 .note{font-size:13.5px;color:var(--ink-2);margin:0}
 .confirm{border:1.5px solid var(--danger);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--sheet)}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;z-index:40;max-width:calc(100% - 32px)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;z-index:40;max-width:calc(100% - 32px)}
 
 .modal{position:fixed;inset:0;z-index:30;background:var(--paper);display:flex;flex-direction:column;
   padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));gap:10px}
 .mbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:space-between}
 .mbar h3{margin:0;font-family:var(--f-display);font-size:17px}
-.tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--rule);cursor:pointer;padding:0}
+.tools{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;align-items:center;padding-block:4px;scrollbar-width:none}
+.tools > *{flex:none}
+.tools::-webkit-scrollbar{display:none}
+.sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--rule);cursor:pointer;padding:0}
 .sw[aria-pressed="true"]{outline:3px solid var(--site);outline-offset:2px}
-.tool{font:inherit;font-size:13.5px;border:1.5px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tool{font:inherit;font-size:14px;border:1.5px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:8px;padding:7px 11px;min-height:38px;cursor:pointer;white-space:nowrap}
 .tool[aria-pressed="true"]{border-color:var(--site);background:var(--site-soft)}
 .stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .stage canvas{max-width:100%;max-height:100%;background:#fff;border-radius:6px;border:1px solid var(--rule);touch-action:none;cursor:crosshair}
@@ -175,38 +219,63 @@ section.block{background:var(--sheet);border:1px solid var(--rule);border-radius
 .zoom img{max-width:100%;max-height:80vh;object-fit:contain;border-radius:6px}
 .zoom p{color:#e8ece8;margin:0;font-family:var(--f-hand);font-size:24px;text-align:center}
 .zoom .btn{border-color:#e8ece8;color:#e8ece8;background:transparent}
-@media (max-width:520px){.info{grid-template-columns:repeat(2,minmax(0,1fr))}.info .w2{grid-column:1/-1}.slot{grid-template-columns:1fr}.stext textarea{min-height:110px}.rep-obs{grid-template-columns:90px minmax(0,1fr)}}
+@media (max-width:520px){
+  .info{grid-template-columns:repeat(2,minmax(0,1fr))}.info .w2{grid-column:1/-1}
+  h1{font-size:22px}
+  .slot{grid-template-columns:1fr;gap:8px}
+  .empty{aspect-ratio:auto;flex-direction:row;padding:14px;min-height:68px}
+  .empty .btn{flex:1;justify-content:center}
+  .stext textarea{min-height:96px}
+  section.block{padding:14px}
+  .site-head h2{font-size:21px}
+  .pager .btn{flex:1;justify-content:center;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rep-obs{grid-template-columns:90px minmax(0,1fr)}
+  .ab{font-size:13px;padding:5px 2px}
+}
 @media (prefers-reduced-motion:reduce){.egg.shake .shell,.egg.hatch .baby{animation:none}}
 </style>
 
-<div class="eggbar"><div class="in">
-  <svg class="egg" id="egg" viewBox="0 0 60 72" role="img" aria-label="공룡알 부화 진행"></svg>
-  <div class="egginfo">
-    <div class="egghead"><b>공룡알 부화</b><span class="eggcount" id="eggCount"></span></div>
-    <div class="pips" id="pips"></div>
-    <div class="eggmsg" id="eggMsg"></div>
+<div class="eggbar" id="topbar"><div class="in">
+  <div class="eggrow">
+    <svg class="egg" id="egg" viewBox="0 0 60 72" role="img" aria-label="공룡알 부화 진행"></svg>
+    <div class="egginfo">
+      <div class="egghead"><b>공룡알 부화</b><span class="eggcount" id="eggCount"></span></div>
+      <div class="pips" id="pips"></div>
+      <div class="eggmsg" id="eggMsg"></div>
+    </div>
   </div>
+  <nav class="strip" id="nav" aria-label="답사 지점"></nav>
 </div></div>
 
 <div class="wrap">
   <header class="top">
-    <div class="eyebrow">화성 국가지질공원 · 야외지질 답사</div>
+    <div class="eyebrow">화성 국가지질공원 · 야외 탐사</div>
     <h1>국가지질공원 탐사 기록장</h1>
-    <div class="info">
+    <section class="infocard">
+    <button class="infosum" id="infoSum" type="button" aria-expanded="true" aria-controls="infoBody"></button>
+    <div class="info" id="infoBody">
       <div class="field"><label for="sno">학번</label><input type="text" id="sno" inputmode="numeric" placeholder="20315" autocomplete="off"></div>
       <div class="field"><label for="sname">이름</label><input type="text" id="sname" placeholder="이름" autocomplete="off"></div>
-      <div class="field w2"><label for="sdate">답사일</label><input type="date" id="sdate"></div>
+      <div class="field w2"><label for="sdate">탐사일</label><input type="date" id="sdate"></div>
       <div class="field w2"><span class="lab">날씨</span><div class="weather" id="weather"></div></div>
+      <div class="field w2"><span class="lab">탐사 장소 <span class="muted" style="font-weight:400">· 다녀온 곳 모두</span></span><div class="weather" id="places"></div></div>
       <div class="field w2"><label for="swx">기온·현장 상태</label><input type="text" id="swx" placeholder="예) 18℃, 바닥이 젖어 있음" autocomplete="off"></div>
+      <div class="w2 infodone"><button class="btn plain sm" type="button" id="infoDone">입력 완료</button></div>
     </div>
+    </section>
     <div class="status" id="status"><i></i><span>이 기기에 자동 저장돼요</span></div>
   </header>
 
-  <nav class="nav" id="nav" aria-label="답사 지점 목록"></nav>
   <main id="main" class="wrap" style="gap:16px"></main>
 </div>
 
-<input type="file" id="photoInput" accept="image/*" hidden>
+<div class="actionbar" role="toolbar" aria-label="저장과 보고서"><div class="in">
+  <button class="ab" type="button" id="abSave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-5-5 5 5 5-5M4 21h16"/></svg>백업 저장</button>
+  <button class="ab" type="button" id="abLoad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9m-5 5 5-5 5 5M4 3h16"/></svg>백업 불러오기</button>
+  <button class="ab main" type="button" id="abReport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>보고서 만들기</button>
+</div></div>
+
+<input type="file" id="photoInput" accept="image/*" multiple hidden>
 <input type="file" id="backupInput" accept="application/json,.json" hidden>
 
 <script>
@@ -218,14 +287,14 @@ section.block{background:var(--sheet);border:1px solid var(--rule);border-radius
    - 완성 조건: RULE
    ========================================================= */
 const REF_DIR = "images/";
-const KEYWORDS = ["퇴적암","화성암","편마암","층리","엽리","사층리","단층","습곡","관입","포획","하도구조","인편상구조","풍화","차별 침식","타포니"];
+const KEYWORDS = ["생흔 화석","퇴적암","화성암","변성암","역암","사암","층리","엽리","사층리","단층","습곡","관입","포획","하도구조","인편상구조","풍화","차별 침식","타포니"];
 const AREAS = {
   dino: { name: "고정리 공룡알 화석산지", short: "공룡알 화석지", keywords: KEYWORDS },
   uum:  { name: "우음도", short: "우음도", keywords: KEYWORDS }
 };
 const GOAL = 8;   // 알이 부화하는 데 필요한 완성 지점 수 (어느 지점이든 상관없음)
 const SITES = [
-  { id:"d0", area:"dino", name:"고정리 공룡알 화석지로 들어가며" },
+  { id:"d0", area:"dino", name:"고정리 공룡알 화석지로 들어가며", short:"들어가며" },
   { id:"d1", area:"dino", name:"상한염" },
   { id:"d2", area:"dino", name:"중한염" },
   { id:"d3", area:"dino", name:"둥지바위" },
@@ -242,23 +311,28 @@ const RULE  = { slots: 1, learned: true, keywords: 1 }; // 지점 완성 조건
 const WEATHER = ["맑음","구름 조금","흐림","비","바람 강함"];
 
 /* ---------- 상태 ---------- */
-const blankSlot = () => ({ src:"", orig:"", type:"", text:"" });
-const blankSite = () => ({ slots: Array.from({length:SLOTS}, blankSlot), learned:"", questions:"", kw:{}, stash:{}, custom:[] });
-const blankState = () => ({ v:2, info:{ no:"", name:"", date:"", weather:"", wx:"" }, sites:Object.fromEntries(SITES.map(s=>[s.id, blankSite()])), end:{ learned:"", more:"" }, doneAt:{} });
+const blankSlot = () => ({ imgs:[], text:"" });   // imgs: [{id, src, orig, type:"photo"|"sketch", cap}]
+const uid = () => Math.random().toString(36).slice(2,10);
+const blankSite = () => ({ slots: Array.from({length:SLOTS}, blankSlot), learned:"", questions:"", kw:{}, stash:{}, custom:[], loc:null, locText:"" });
+const blankState = () => ({ v:2, info:{ no:"", name:"", date:"", weather:"", wx:"", places:[] }, sites:Object.fromEntries(SITES.map(s=>[s.id, blankSite()])), end:{ learned:"", more:"" }, doneAt:{} });
 let state = blankState();
 let view = "d0";
 
 function normalize(d){
   const b = blankState();
   if(!d || typeof d !== "object") return b;
-  b.info = Object.assign(b.info, d.info || {});
+  b.info = Object.assign(b.info, d.info || {}); if(!Array.isArray(b.info.places)) b.info.places = [];
   b.end = Object.assign(b.end, d.end || {});
   b.doneAt = d.doneAt || {};
   for(const s of SITES){
     const src = (d.sites || {})[s.id];
     if(!src) continue;
     const x = Object.assign(blankSite(), src);
-    x.slots = Array.from({length:SLOTS}, (_,i) => Object.assign(blankSlot(), (src.slots || [])[i] || {}));
+    x.slots = Array.from({length:SLOTS}, (_,i) => {
+      const o = (src.slots || [])[i] || {};
+      const imgs = Array.isArray(o.imgs) ? o.imgs : (o.src ? [{ id:uid(), src:o.src, orig:o.orig||"", type:o.type||"photo", cap:"" }] : []);
+      return { imgs, text: o.text || "" };
+    });
     b.sites[s.id] = x;
   }
   return b;
@@ -277,7 +351,7 @@ function save(){
   clearTimeout(saveTimer); setStatus("저장하는 중…");
   saveTimer = setTimeout(async () => {
     try{ if(!DB.db) throw 0; await idbSet("state2", JSON.stringify(state)); const t=new Date(); setStatus(`이 기기에 저장됨 · ${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")}`); }
-    catch(e){ setStatus("이 브라우저에는 저장되지 않아요. 보고서 탭에서 백업 파일을 꼭 저장하세요.", true); }
+    catch(e){ setStatus("이 브라우저에는 저장되지 않아요. 아래 [백업 저장]을 자주 눌러 주세요.", true); }
   }, 500);
 }
 
@@ -318,7 +392,7 @@ async function saveFile(filename, data, mime){
 /* ---------- 완성 판정 ---------- */
 function siteStatus(id){
   const D = state.sites[id];
-  const slots = D.slots.filter(s => s.src && s.text.trim()).length;
+  const slots = D.slots.filter(s => s.imgs.length && s.text.trim()).length;
   const learned = !!D.learned.trim();
   const kws = Object.values(D.kw).filter(v => v.trim()).length;
   return { slots, learned, kws, complete: slots>=RULE.slots && (!RULE.learned || learned) && kws>=RULE.keywords };
@@ -402,7 +476,7 @@ function refreshProgress(){
     msg.append("부화 성공! ", el("button",{type:"button", onclick:celebrate},"부화 인증 보기"));
   } else {
     delete state.allAt;
-    msg.textContent = n === 0 ? `지점 기록을 완성할 때마다 알에 금이 가요. ${GOAL}곳이면 부화!` : n === GOAL-1 ? "안에서 누가 보고 있어요… 한 곳만 더!" : `부화까지 ${GOAL-n}곳 남았어요`;
+    msg.textContent = n === 0 ? `지점을 완성할 때마다 금이 가요 · ${GOAL}곳이면 부화!` : n === GOAL-1 ? "안에서 누가 보고 있어요… 한 곳만 더!" : `부화까지 ${GOAL-n}곳 남았어요`;
   }
   // 새로 완성된 지점 알림
   if(shown){
@@ -420,18 +494,30 @@ function refreshProgress(){
 /* ---------- 지점 목록 ---------- */
 function buildNav(){
   const nav = $("#nav"); nav.innerHTML = "";
+  const row = () => el("div",{class:"striprow"});
   for(const [aid, A] of Object.entries(AREAS)){
-    const row = el("div",{class:"navrow"});
-    SITES.forEach((s,i) => { if(s.area===aid) row.append(el("button",{class:"np", type:"button", "data-id":s.id, onclick:()=>show(s.id)}, el("span",{class:"n"}, String(i+1)), s.name)); });
-    nav.append(el("div",{class:"navgrp", style:`--c:var(--${aid});--cs:var(--${aid}-soft)`}, el("span",{}, A.short), row));
+    const r = row();
+    r.append(el("span",{class:"grp", style:`--c:var(--${aid})`}, A.short));
+    SITES.forEach((s,i) => { if(s.area===aid) r.append(el("button",{class:"np", type:"button", "data-id":s.id, style:`--c:var(--${aid});--cs:var(--${aid}-soft)`, onclick:()=>go(s.id)}, el("span",{class:"n"}, String(i+1)), s.short || s.name)); });
+    if(aid === "uum"){   // 우음도 줄 끝에 정리 버튼
+      r.append(el("span",{class:"grp", style:"--c:var(--end)"}, "정리"));
+      r.append(el("button",{class:"np", type:"button", "data-v":"end", style:"--c:var(--end);--cs:var(--end-soft)", onclick:()=>go("end")}, "마무리"));
+      r.append(el("button",{class:"np", type:"button", "data-v":"report", style:"--c:var(--end);--cs:var(--end-soft)", onclick:()=>go("report")}, "보고서·백업"));
+    }
+    nav.append(r);
   }
-  nav.append(el("div",{class:"navgrp", style:"--c:var(--end);--cs:var(--end-soft)"}, el("span",{},"정리"),
-    el("div",{class:"navrow"},
-      el("button",{class:"np", type:"button", "data-v":"end", onclick:()=>show("end")}, "마무리"),
-      el("button",{class:"np", type:"button", "data-v":"report", onclick:()=>show("report")}, "보고서·백업"))));
 }
 function markNav(){
-  document.querySelectorAll(".np").forEach(b => { const v = b.dataset.id || b.dataset.v; if(v===view) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+  let cur = null;
+  document.querySelectorAll(".np").forEach(b => { const v = b.dataset.id || b.dataset.v; if(v===view){ b.setAttribute("aria-current","page"); cur = b; } else b.removeAttribute("aria-current"); });
+  if(cur){ const nav = cur.parentElement; const l = cur.offsetLeft - nav.offsetLeft, r = l + cur.offsetWidth;
+    if(l < nav.scrollLeft + 8 || r > nav.scrollLeft + nav.clientWidth - 8) nav.scrollTo({left: Math.max(0, l - 64), behavior:"smooth"}); }
+}
+// 지점으로 이동: 상단 고정 바 바로 아래로 스크롤
+function go(v){
+  show(v);
+  const y = $("#main").getBoundingClientRect().top + window.scrollY - $("#topbar").offsetHeight - 10;
+  window.scrollTo({top: Math.max(0, y)});
 }
 
 /* ---------- 사진 ---------- */
@@ -440,16 +526,20 @@ function readFile(f){ return new Promise((res,rej)=>{ const r=new FileReader(); 
 async function shrink(u, max=1400, q=.78){ const img=await loadImg(u); const k=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)); const c=document.createElement("canvas"); c.width=Math.round(img.naturalWidth*k); c.height=Math.round(img.naturalHeight*k); c.getContext("2d").drawImage(img,0,0,c.width,c.height); return c.toDataURL("image/jpeg",q); }
 let photoTarget = null;
 const photoInput = $("#photoInput");
+function pickPhotos(id, i){ photoTarget = {id, i}; photoInput.click(); }
 photoInput.addEventListener("change", async () => {
-  const f = photoInput.files[0]; photoInput.value = ""; if(!f || !photoTarget) return;
+  const files = [...photoInput.files]; photoInput.value = ""; if(!files.length || !photoTarget) return;
   const { id, i } = photoTarget; setStatus("사진 정리하는 중…");
-  try{ const src = await shrink(await readFile(f)); Object.assign(state.sites[id].slots[i], { src, orig:"", type:"photo" }); }
-  catch(e){ toast("사진을 읽지 못했어요"); }
-  if(view === id) renderSlots(); save();
+  for(const f of files){
+    try{ const src = await shrink(await readFile(f)); state.sites[id].slots[i].imgs.push({ id:uid(), src, orig:"", type:"photo", cap:"" }); }
+    catch(e){ toast("사진 하나를 읽지 못했어요"); }
+  }
+  if(view === id) renderSlots(); save(); renderCheck();
 });
 
 /* ---------- 지점 화면 ---------- */
 function renderSite(id){
+  locErr = ""; locManual = false; locBusy = false;
   const S = SITES[siteIdx(id)], A = AREAS[S.area], D = state.sites[id], idx = siteIdx(id);
   const main = $("#main"); main.innerHTML = "";
 
@@ -458,6 +548,8 @@ function renderSite(id){
     el("h2",{}, S.name),
     S.guide ? el("p",{}, S.guide) : null,
     el("div",{class:"check", id:"check"})));
+
+  main.append(el("div",{class:"locbox", id:"loc"}));
 
   // 참고 사진 (있을 때만 보임)
   const refs = el("div",{class:"refs", id:"refs", hidden:true});
@@ -473,7 +565,7 @@ function renderSite(id){
   main.append(refs);
 
   main.append(el("section",{class:"block"},
-    el("h3",{}, "관찰 기록", el("span",{class:"hint"},"칸마다 사진이나 스케치 한 장, 그리고 오감을 이용한 관찰 기록")),
+    el("h3",{}, "관찰 기록", el("span",{class:"hint"},"칸마다 사진이나 스케치(여러 장 가능), 그리고 오감을 이용한 관찰 기록")),
     el("div",{class:"slots", id:"slots"})));
 
   const area = (key, title, hint, ph) => {
@@ -495,10 +587,53 @@ function renderSite(id){
 
   const prev = SITES[idx-1], next = SITES[idx+1];
   main.append(el("div",{class:"pager"},
-    prev ? el("button",{class:"btn plain", type:"button", onclick:()=>{show(prev.id);window.scrollTo({top:0})}}, "← "+prev.name) : el("span"),
-    el("button",{class:"btn", type:"button", onclick:()=>{show(next?next.id:"end");window.scrollTo({top:0})}}, (next?next.name:"마무리")+" →")));
+    prev ? el("button",{class:"btn plain", type:"button", onclick:()=>{go(prev.id)}}, "← "+prev.name) : el("span"),
+    el("button",{class:"btn", type:"button", onclick:()=>{go(next?next.id:"end")}}, (next?next.name:"마무리")+" →")));
 
-  renderSlots(); renderKeywords(); renderCheck();
+  renderLoc(); renderSlots(); renderKeywords(); renderCheck();
+}
+
+/* ---------- 위치 기록 ---------- */
+const mapLinks = (name, lat, lon) => [
+  ["카카오맵", `https://map.kakao.com/link/map/${encodeURIComponent(name)},${lat},${lon}`],
+  ["구글 지도", `https://www.google.com/maps?q=${lat},${lon}`]
+];
+const fmtTime = t => { const d = new Date(t); return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; };
+let locBusy = false, locErr = "", locManual = false;
+function renderLoc(){
+  const box = $("#loc"); if(!box) return;
+  const id = view, S = SITES[siteIdx(id)], D = state.sites[id];
+  box.innerHTML = "";
+  box.append(el("div",{class:"loctitle"}, "📍 탐사 위치", el("span",{}, "이 지점에 도착하면 눌러 주세요")));
+  const btn = el("button",{class:"btn sm"+(D.loc?" ghost":""), type:"button", disabled: locBusy, onclick:()=>getLoc(id)}, locBusy ? "위치 찾는 중…" : (D.loc ? "다시 기록" : "지금 위치 기록"));
+  if(D.loc){
+    const { lat, lon, acc, t } = D.loc;
+    box.append(el("div",{class:"locline"}, `${lat.toFixed(5)}, ${lon.toFixed(5)} · ±${Math.round(acc)}m · ${fmtTime(t)}`));
+    box.append(el("div",{class:"locrow"}, ...mapLinks(S.name, lat, lon).map(([l,u]) => el("a",{class:"mini", href:u, target:"_blank", rel:"noopener"}, l+" ↗")), btn));
+  } else {
+    box.append(el("div",{class:"locrow"}, btn,
+      !(locManual || D.locText) ? el("button",{class:"mini", type:"button", onclick:()=>{ locManual = true; renderLoc(); $("#loctext")?.focus(); }}, "직접 적기") : null));
+  }
+  if(locErr) box.append(el("p",{class:"locerr"}, locErr));
+  if(locManual || locErr || D.locText){
+    const inp = el("input",{type:"text", id:"loctext", placeholder:"예) 둥지바위 안내판 앞, 데크길 끝", "aria-label":"위치 직접 적기"});
+    inp.value = D.locText; inp.addEventListener("input", () => { D.locText = inp.value; save(); });
+    box.append(inp);
+  }
+}
+function getLoc(id){
+  locErr = "";
+  if(!("geolocation" in navigator)){ locErr = "이 화면에서는 위치를 쓸 수 없어요. 아래에 직접 적어 주세요."; renderLoc(); return; }
+  locBusy = true; renderLoc();
+  navigator.geolocation.getCurrentPosition(pos => {
+    locBusy = false;
+    state.sites[id].loc = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy, t: Date.now() };
+    save(); if(view === id) renderLoc(); toast("위치를 기록했어요");
+  }, err => {
+    locBusy = false;
+    locErr = err && err.code === 1 ? "위치 권한이 꺼져 있어요. 휴대폰 설정에서 허용하거나, 아래에 직접 적어 주세요." : "위치를 잡지 못했어요. 잠시 후 다시 누르거나, 아래에 직접 적어 주세요.";
+    if(view === id) renderLoc();
+  }, { enableHighAccuracy:true, timeout:15000, maximumAge:0 });
 }
 function renderCheck(){
   const c = $("#check"); if(!c) return;
@@ -512,25 +647,40 @@ function renderSlots(){
   const box = $("#slots"); if(!box) return;
   const id = view, D = state.sites[id]; box.innerHTML = "";
   D.slots.forEach((S, i) => {
-    let media;
-    if(S.src){
-      const acts = el("div",{class:"mact"},
-        el("button",{class:"mini", type:"button", onclick:()=>openSketch(id,i)}, S.type==="photo" ? "위에 표시하기" : "이어 그리기"),
-        el("button",{class:"mini", type:"button", onclick:()=>{ photoTarget={id,i}; photoInput.click(); }}, "사진 바꾸기"),
-        S.orig ? el("button",{class:"mini", type:"button", onclick:()=>{ S.src=S.orig; S.orig=""; renderSlots(); save(); }}, "표시 지우기") : null,
-        el("button",{class:"mini del", type:"button", onclick:()=>{ Object.assign(S,{src:"",orig:"",type:""}); renderSlots(); save(); renderCheck(); }}, "삭제"));
-      media = el("div",{class:"simg"},
-        el("button",{class:"thumb", type:"button", "aria-label":"크게 보기", onclick:()=>zoom(S.src, S.text.split("\n")[0])},
-          el("img",{src:S.src, alt:`관찰 ${i+1}`}), el("span",{class:"kind"}, S.type==="photo" ? (S.orig?"사진+표시":"사진") : "스케치")),
-        acts);
+    const slot = el("div",{class:"slot"}, el("div",{class:"slot-lab"}, `관찰 ${i+1}`));
+    if(S.imgs.length){
+      const grid = el("div",{class:"imgs"});
+      S.imgs.forEach((m, j) => {
+        const card = el("div",{class:"imgcard"},
+          el("div",{class:"tw"},
+            el("button",{class:"thumb", type:"button", "aria-label":"크게 보기", onclick:()=>zoom(m.src, m.cap)},
+              el("img",{src:m.src, alt:m.cap || `관찰 ${i+1}-${j+1}`}),
+              el("span",{class:"kind"}, m.type==="photo" ? (m.orig?"사진+표시":"사진") : "스케치")),
+            el("button",{class:"xdel", type:"button", "aria-label":"이 사진 삭제", onclick:()=>{ S.imgs.splice(j,1); renderSlots(); save(); renderCheck(); }}, "×")));
+        if(m.cap || m.showCap){
+          const cap = el("input",{type:"text", id:`cap-${m.id}`, placeholder:"사진 설명 (선택)", "aria-label":"사진 설명"});
+          cap.value = m.cap || ""; cap.addEventListener("input", () => { m.cap = cap.value; save(); });
+          card.append(cap);
+        }
+        card.append(el("div",{class:"mact"},
+          (m.cap || m.showCap) ? null : el("button",{class:"mini", type:"button", onclick:()=>{ m.showCap = true; renderSlots(); document.getElementById(`cap-${m.id}`)?.focus(); }}, "+ 설명"),
+          el("button",{class:"mini", type:"button", onclick:()=>openSketch(id,i,j)}, m.type==="photo" ? "표시" : "이어 그리기"),
+          m.orig ? el("button",{class:"mini", type:"button", onclick:()=>{ m.src=m.orig; m.orig=""; renderSlots(); save(); }}, "표시 지우기") : null));
+        grid.append(card);
+      });
+      slot.append(grid,
+        el("div",{class:"addrow"},
+          iconBtn("ghost sm", "camera", "사진 추가", ()=>pickPhotos(id,i)),
+          iconBtn("ghost sm", "pen", "스케치 추가", ()=>openSketch(id,i,null))));
     } else {
-      media = el("div",{class:"simg"}, el("div",{class:"empty"},
-        iconBtn("sm", "camera", "사진", ()=>{ photoTarget={id,i}; photoInput.click(); }),
-        iconBtn("ghost sm", "pen", "스케치", ()=>openSketch(id,i))));
+      slot.append(el("div",{class:"empty"},
+        iconBtn("sm", "camera", "사진", ()=>pickPhotos(id,i)),
+        iconBtn("ghost sm", "pen", "스케치", ()=>openSketch(id,i,null))));
     }
     const ta = el("textarea",{id:`${id}-s${i}`, "aria-label":`관찰 ${i+1} 내용`, placeholder: i===0 ? "보이는 것(색, 알갱이 크기, 무늬 방향, 크기 cm), 만져지는 느낌, 소리, 냄새… 오감으로 느낀 그대로 적어요" : "다른 부분이나 다른 각도에서 본 것"});
     ta.value = S.text; ta.addEventListener("input", () => { S.text = ta.value; save(); renderCheck(); });
-    box.append(el("div",{class:"slot"}, el("div",{class:"slot-lab"}, `관찰 ${i+1}`), media, el("div",{class:"stext"}, ta)));
+    slot.append(ta);
+    box.append(slot);
   });
 }
 const kwId = k => `kw-${view}-${[...k].map(c=>c.charCodeAt(0).toString(36)).join("")}`;
@@ -564,8 +714,8 @@ function renderEnd(){
   main.append(area("learned","오늘 새롭게 보고 배운 점","예) 공룡알 화석지와 우음도는 가까운데도 암석의 모습이 전혀 달랐다. 그 이유는…"));
   main.append(area("more","돌아가 더 알아볼 점","예) 우음도의 흰 띠는 언제 생겼는지 찾아보고 싶다."));
   main.append(el("div",{class:"pager"},
-    el("button",{class:"btn plain", type:"button", onclick:()=>{show(SITES[SITES.length-1].id);window.scrollTo({top:0})}}, "← "+SITES[SITES.length-1].name),
-    el("button",{class:"btn", type:"button", onclick:()=>{show("report");window.scrollTo({top:0})}}, "보고서·백업 →")));
+    el("button",{class:"btn plain", type:"button", onclick:()=>{go(SITES[SITES.length-1].id)}}, "← "+SITES[SITES.length-1].name),
+    el("button",{class:"btn", type:"button", onclick:()=>{go("report")}}, "보고서·백업 →")));
 }
 
 /* ---------- 보고서 ---------- */
@@ -590,9 +740,12 @@ function renderReport(){
   SITES.forEach((S,i) => {
     const D = state.sites[S.id], st = siteStatus(S.id);
     const box = el("div",{class:"rep-site", style:`--c:var(--${S.area})`}, el("h3",{}, `${i+1}. ${S.name} `, st.complete ? el("span",{style:"color:var(--c);font-size:14px"},"● 완성") : null));
-    const used = D.slots.filter(s=>s.src || s.text.trim());
+    if(D.loc || D.locText) box.append(el("p",{class:"muted"}, "📍 " + [D.loc ? `${D.loc.lat.toFixed(5)}, ${D.loc.lon.toFixed(5)} (±${Math.round(D.loc.acc)}m)` : "", D.locText].filter(Boolean).join(" · ")));
+    const used = D.slots.map((s,k)=>[s,k]).filter(([s])=>s.imgs.length || s.text.trim());
     if(!used.length) box.append(el("p",{class:"muted"},"관찰 기록 없음"));
-    used.forEach(s => box.append(el("div",{class:"rep-obs"}, s.src ? el("img",{src:s.src, alt:""}) : el("span"), el("p",{class:s.text.trim()?"":"muted"}, s.text.trim()||"(관찰 내용 없음)"))));
+    used.forEach(([s,k]) => box.append(el("div",{class:"rep-slot"}, el("h4",{}, `관찰 ${k+1}`),
+      s.imgs.length ? el("div",{class:"rep-imgs"}, ...s.imgs.map(m => el("figure",{}, el("img",{src:m.src, alt:m.cap||""}), m.cap ? el("figcaption",{}, m.cap) : null))) : null,
+      el("p",{class:s.text.trim()?"":"muted"}, s.text.trim()||"(관찰 내용 없음)"))));
     if(D.learned.trim()){ box.append(el("h4",{},"알게 된 내용")); box.append(el("p",{},D.learned)); }
     if(D.questions.trim()){ box.append(el("h4",{},"더 알고 싶은 것")); box.append(el("p",{},D.questions)); }
     const ks = Object.keys(D.kw); if(ks.length){ box.append(el("h4",{},"배운 키워드")); ks.forEach(k=>box.append(el("p",{}, el("b",{},k+" — "), D.kw[k].trim()||"(내용 없음)"))); }
@@ -622,22 +775,24 @@ function buildReport(){
   const css = `body{font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif;max-width:820px;margin:0 auto;padding:28px 20px;color:#1e2624;line-height:1.65}
 h1{font-size:25px;margin:0 0 6px}.meta{color:#56605c;margin:0 0 6px}.area{margin:34px 0 0;font-size:20px;border-bottom:2px solid currentColor;padding-bottom:4px}
 section{border-left:5px solid var(--c);padding:2px 0 2px 14px;margin:22px 0;break-inside:auto}h2{margin:0 0 6px;font-size:18px}h3{font-size:14.5px;color:#56605c;margin:14px 0 4px}
-p{margin:0;white-space:pre-wrap}.obs{display:grid;grid-template-columns:220px 1fr;gap:12px;margin:10px 0;break-inside:avoid}img{width:100%;border-radius:6px;border:1px solid #d9ddd4}
-.kw{margin:6px 0}.kw b{color:var(--c)}.e{color:#9aa39e}.done{font-size:13px;color:var(--c)}@media(max-width:560px){.obs{grid-template-columns:1fr}}`;
+p{margin:0;white-space:pre-wrap}.obs{margin:10px 0}.g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 8px}figure{margin:0;break-inside:avoid}figcaption{font-size:12.5px;color:#56605c}
+img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;border:1px solid #d9ddd4}.loc{font-size:13.5px;color:#56605c;margin:0 0 6px}.loc a{color:var(--c)}
+.kw{margin:6px 0}.kw b{color:var(--c)}.e{color:#9aa39e}.done{font-size:13px;color:var(--c)}@media(max-width:560px){.g{grid-template-columns:repeat(2,1fr)}}`;
   let html = "", lastArea = "";
   SITES.forEach((S,i) => {
     const D = state.sites[S.id];
     if(S.area !== lastArea){ html += `<h2 class="area" style="color:${color[S.area]}">${esc(AREAS[S.area].name)}</h2>`; lastArea = S.area; }
-    const obs = D.slots.filter(s=>s.src||s.text.trim()).map((s,k)=>`<div class="obs">${s.src?`<img src="${s.src}" alt="관찰 ${k+1}">`:"<div></div>"}<div><h3>관찰 ${k+1}</h3>${p(s.text)}</div></div>`).join("") || `<p class="e">관찰 기록 없음</p>`;
+    const obs = D.slots.map((s,k)=>[s,k]).filter(([s])=>s.imgs.length||s.text.trim()).map(([s,k])=>`<div class="obs"><h3>관찰 ${k+1}</h3>${s.imgs.length?`<div class="g">${s.imgs.map(m=>`<figure><img src="${m.src}" alt="${esc(m.cap)}">${m.cap?`<figcaption>${esc(m.cap)}</figcaption>`:""}</figure>`).join("")}</div>`:""}${p(s.text)}</div>`).join("") || `<p class="e">관찰 기록 없음</p>`;
+    const loc = (D.loc || D.locText) ? `<p class="loc">📍 ${D.loc ? `${D.loc.lat.toFixed(5)}, ${D.loc.lon.toFixed(5)} (±${Math.round(D.loc.acc)}m, ${fmtTime(D.loc.t)}) <a href="https://map.kakao.com/link/map/${encodeURIComponent(S.name)},${D.loc.lat},${D.loc.lon}">카카오맵</a> · <a href="https://www.google.com/maps?q=${D.loc.lat},${D.loc.lon}">구글 지도</a>` : ""}${D.loc && D.locText ? " · " : ""}${esc(D.locText)}</p>` : "";
     const ks = Object.keys(D.kw);
-    html += `<section style="--c:${color[S.area]}"><h2>${i+1}. ${esc(S.name)} ${siteStatus(S.id).complete?'<span class="done">● 완성</span>':""}</h2>${obs}
+    html += `<section style="--c:${color[S.area]}"><h2>${i+1}. ${esc(S.name)} ${siteStatus(S.id).complete?'<span class="done">● 완성</span>':""}</h2>${loc}${obs}
 <h3>알게 된 내용</h3>${p(D.learned)}<h3>더 알고 싶은 것</h3>${p(D.questions)}
 <h3>배운 키워드</h3>${ks.length?ks.map(k=>`<div class="kw"><b>${esc(k)}</b><p>${esc(D.kw[k].trim()||"(내용 없음)")}</p></div>`).join(""):`<p class="e">고른 키워드 없음</p>`}</section>`;
   });
   html += `<h2 class="area" style="color:#5b5f8f">마무리</h2><section style="--c:#5b5f8f"><h3>오늘 새롭게 보고 배운 점</h3>${p(state.end.learned)}<h3>돌아가 더 알아볼 점</h3>${p(state.end.more)}</section>`;
   const done = SITES.filter(s=>siteStatus(s.id).complete).length;
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(fileStem())}</title><style>${css}</style></head><body>
-<h1>화성 국가지질공원 야외지질 답사 보고서</h1><p class="meta">${esc(I.no)} ${esc(I.name)}</p><p class="meta">답사일 ${esc(I.date||"-")} · 날씨 ${esc(I.weather||"-")}${I.wx?` · ${esc(I.wx)}`:""} · 완성 지점 ${done}/${SITES.length}</p>${html}</body></html>`;
+<h1>화성 국가지질공원 야외지질 답사 보고서</h1><p class="meta">${esc(I.no)} ${esc(I.name)}</p><p class="meta">탐사일 ${esc(I.date||"-")} · 날씨 ${esc(I.weather||"-")}${I.wx?` · ${esc(I.wx)}`:""}${I.places.length?` · 장소 ${esc(I.places.join(", "))}`:""} · 완성 지점 ${done}/${SITES.length}</p>${html}</body></html>`;
 }
 
 /* ---------- 확대 ---------- */
@@ -648,11 +803,12 @@ function zoom(src, cap){
 }
 
 /* ---------- 스케치 ---------- */
-async function openSketch(id, i){
+async function openSketch(id, i, j){
   const slot = state.sites[id].slots[i];
+  const img = j == null ? null : slot.imgs[j];
   let W = 1200, H = 900, bg = null;
-  if(slot.src){ bg = await loadImg(slot.src); const k=Math.min(1,1600/Math.max(bg.naturalWidth,bg.naturalHeight)); W=Math.round(bg.naturalWidth*k); H=Math.round(bg.naturalHeight*k); }
-  const onPhoto = slot.type === "photo";
+  if(img){ bg = await loadImg(img.src); const k=Math.min(1,1600/Math.max(bg.naturalWidth,bg.naturalHeight)); W=Math.round(bg.naturalWidth*k); H=Math.round(bg.naturalHeight*k); }
+  const onPhoto = !!img && img.type === "photo";
   const base = document.createElement("canvas"); base.width=W; base.height=H; const b=base.getContext("2d");
   b.fillStyle="#fff"; b.fillRect(0,0,W,H);
   if(bg) b.drawImage(bg,0,0,W,H);
@@ -682,8 +838,8 @@ async function openSketch(id, i){
   const done = () => {
     const out=document.createElement("canvas"); out.width=W; out.height=H; const o=out.getContext("2d"); o.drawImage(base,0,0); o.drawImage(ink,0,0);
     const src = out.toDataURL("image/jpeg",.85);
-    if(onPhoto){ if(!slot.orig) slot.orig = slot.src; slot.src = src; }
-    else { slot.src = src; slot.type = "sketch"; }
+    if(img){ if(onPhoto && !img.orig) img.orig = img.src; img.src = src; }
+    else slot.imgs.push({ id:uid(), src, orig:"", type:"sketch", cap:"" });
     close(); renderSlots(); save(); renderCheck(); toast(onPhoto ? "사진에 표시를 저장했어요" : "스케치를 저장했어요");
   };
   const m = el("div",{class:"modal", role:"dialog", "aria-modal":"true", "aria-label":"스케치"},
@@ -706,25 +862,55 @@ function show(v){
 }
 
 /* ---------- 학생·답사 정보 ---------- */
+function renderInfoSum(){
+  const I = state.info, open = !$("#infoBody").hidden;
+  const sum = $("#infoSum"); sum.innerHTML = ""; sum.setAttribute("aria-expanded", String(open));
+  const who = `${I.no} ${I.name}`.trim();
+  const short = I.places.map(n => (Object.values(AREAS).find(a=>a.name===n)||{short:n}).short).join(", ");
+  const bits = [I.date ? I.date.slice(5).replace("-","/") : "", I.weather, short].filter(Boolean).join(" · ");
+  sum.append(el("span",{class:"sum"}, el("b",{}, who || "탐사 정보"), " ", el("span",{class:"muted"}, bits || (who ? "탐사일·날씨·장소를 적어 주세요" : "학번, 이름, 탐사일, 날씨, 장소"))),
+    el("span",{class:"edit"}, open ? "접기" : "수정"));
+}
+function setInfoOpen(open){ $("#infoBody").hidden = !open; renderInfoSum(); }
+$("#infoSum").addEventListener("click", () => setInfoOpen($("#infoBody").hidden));
+$("#infoDone").addEventListener("click", () => setInfoOpen(false));
 function bindInfo(){
   $("#sno").value = state.info.no; $("#sname").value = state.info.name; $("#sdate").value = state.info.date; $("#swx").value = state.info.wx;
-  document.querySelectorAll(".wx").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.w === state.info.weather)));
+  document.querySelectorAll("#weather .wx").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.w === state.info.weather)));
+  document.querySelectorAll("#places .wx").forEach(b => b.setAttribute("aria-pressed", String(state.info.places.includes(b.dataset.p))));
+  renderInfoSum();
 }
 const wbox = $("#weather");
 WEATHER.forEach(w => wbox.append(el("button",{class:"wx", type:"button", "data-w":w, "aria-pressed":"false", onclick:()=>{ state.info.weather = state.info.weather===w ? "" : w; bindInfo(); save(); }}, w)));
-[["sno","no"],["sname","name"],["sdate","date"],["swx","wx"]].forEach(([id,k]) => $("#"+id).addEventListener("input", e => { state.info[k] = e.target.value; save(); }));
+const pbox = $("#places");
+Object.values(AREAS).forEach(A => pbox.append(el("button",{class:"wx", type:"button", "data-p":A.name, "aria-pressed":"false", onclick:()=>{
+  const P = state.info.places, k = P.indexOf(A.name); if(k >= 0) P.splice(k,1); else P.push(A.name); bindInfo(); save(); }}, A.name)));
+[["sno","no"],["sname","name"],["sdate","date"],["swx","wx"]].forEach(([id,k]) => $("#"+id).addEventListener("input", e => { state.info[k] = e.target.value; save(); renderInfoSum(); }));
+
+/* ---------- 하단 고정 버튼 ---------- */
+$("#abSave").addEventListener("click", () => saveFile(`${fileStem()}_백업.json`, JSON.stringify(state), "application/json"));
+$("#abLoad").addEventListener("click", () => $("#backupInput").click());
+$("#abReport").addEventListener("click", () => {
+  if(!state.info.no.trim() || !state.info.name.trim()){
+    toast("맨 위에 학번과 이름을 먼저 적어 주세요");
+    window.scrollTo({top:0, behavior:"smooth"});
+    setTimeout(() => $(state.info.no.trim() ? "#sname" : "#sno").focus({preventScroll:true}), 350);
+    return;
+  }
+  saveFile(`${fileStem()}_보고서.html`, buildReport(), "text/html");
+});
 
 /* ---------- 시작 ---------- */
 (async function boot(){
-  buildNav();
+  buildNav(); renderInfoSum();
   let v = "d0"; try{ v = localStorage.getItem("hwaseong-view") || "d0"; }catch(e){}
   if(!(siteIdx(v)>=0 || v==="end" || v==="report")) v = "d0";
   show(v);
   try{
     DB.db = await idbOpen();
     const raw = await idbGet("state2");
-    if(raw){ state = normalize(JSON.parse(raw)); shown = null; bindInfo(); show(v); setStatus("이전에 적은 기록을 불러왔어요"); }
+    if(raw){ state = normalize(JSON.parse(raw)); shown = null; bindInfo(); if(state.info.no.trim() && state.info.name.trim()) setInfoOpen(false); show(v); setStatus("이전에 적은 기록을 불러왔어요"); }
     else shown = SITES.map(()=>false);
-  }catch(e){ setStatus("이 브라우저에는 저장되지 않아요. 보고서 탭에서 백업 파일을 꼭 저장하세요.", true); }
+  }catch(e){ setStatus("이 브라우저에는 저장되지 않아요. 아래 [백업 저장]을 자주 눌러 주세요.", true); }
 })();
 </script>
