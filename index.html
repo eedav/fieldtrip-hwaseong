@@ -1,0 +1,730 @@
+<title>국가지질공원 탐사 기록장</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Nanum+Pen+Script&display=swap">
+<style>
+/* Layout: 상단 고정 퍼즐 띠(진행상황) → 학생·답사 정보 → 지점 목록 → 지점 기록(관찰 칸 3개 + 알게 된 것·질문·키워드). 모바일 우선, 최대 760px. */
+:root{
+  --paper:#f3f4ef; --sheet:#ffffff; --ink:#1e2624; --ink-2:#56605c; --rule:#d9ddd4; --grid:#e6e9e1;
+  --dino:#a8482a; --dino-soft:#f6e4dc;   /* 고정리 적색 사암 */
+  --uum:#3f6b5c;  --uum-soft:#dcebe4;    /* 우음도 염습지 초록 */
+  --end:#5b5f8f;  --end-soft:#e3e4f2;    /* 마무리 */
+  --site:var(--dino); --site-soft:var(--dino-soft);
+  --ok:#2f7a4d; --danger:#b3261e; --gold:#c08a1e;
+  --f-display:"Gothic A1","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --f-hand:"Nanum Pen Script","Apple SD Gothic Neo",cursive;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#151a19;--sheet:#1d2422;--ink:#e8ece8;--ink-2:#a3aca7;--rule:#323b38;--grid:#28302d;
+  --dino:#e0805e;--dino-soft:#3a2620;--uum:#7fbea6;--uum-soft:#1f3530;--end:#a9acdf;--end-soft:#272a40;--ok:#6fcf97;--danger:#ff8a80;--gold:#f0c060;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#151a19;--sheet:#1d2422;--ink:#e8ece8;--ink-2:#a3aca7;--rule:#323b38;--grid:#28302d;
+  --dino:#e0805e;--dino-soft:#3a2620;--uum:#7fbea6;--uum-soft:#1f3530;--end:#a9acdf;--end-soft:#272a40;--ok:#6fcf97;--danger:#ff8a80;--gold:#f0c060;color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 80px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+body[data-area="uum"]{--site:var(--uum);--site-soft:var(--uum-soft)}
+body[data-area="end"],body[data-area="report"]{--site:var(--end);--site-soft:var(--end-soft)}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+
+/* 공룡알 부화 띠 */
+.eggbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;background:var(--paper);padding-block:8px;border-bottom:1px solid var(--rule);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)))}
+.eggbar .in{max-width:760px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:12px}
+.eggbar svg.egg{width:50px;height:60px;flex:none;overflow:visible}
+.egginfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.egghead{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.egghead b{font-family:var(--f-display);font-size:15px}
+.eggcount{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;color:var(--ink-2);white-space:nowrap}
+.eggcount em{font-style:normal;color:var(--ink);font-size:16px}
+.pips{display:flex;gap:5px}
+.pip{width:100%;max-width:26px;height:7px;border-radius:4px;background:var(--grid);border:1px solid var(--rule)}
+.pip.on{background:var(--gold);border-color:var(--gold)}
+.eggmsg{font-size:13px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eggmsg button{font:inherit;font-weight:600;color:var(--gold);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.egg .shell{transform-box:fill-box;transform-origin:50% 90%}
+.egg.shake .shell{animation:shake .6s ease}
+@keyframes shake{0%,100%{transform:none}20%{transform:rotate(-9deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(3deg)}}
+.egg .crack{opacity:0;transition:opacity .3s}
+.egg .crack.on{opacity:1}
+.egg .baby{transform-box:fill-box;transform-origin:50% 100%}
+.egg.hatch .baby{animation:hatch .9s cubic-bezier(.2,1.6,.4,1)}
+@keyframes hatch{0%{transform:translateY(14px) scale(.6)}100%{transform:none}}
+.celebrate{position:fixed;inset:0;z-index:38;background:color-mix(in srgb,var(--paper) 92%,transparent);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.celebrate svg{width:170px;height:200px;overflow:visible}
+.celebrate h2{font-family:var(--f-display);font-weight:800;font-size:28px;margin:0;color:var(--gold)}
+.celebrate p{margin:0;font-size:16px}
+.celebrate .who{font-family:var(--f-hand);font-size:30px;line-height:1.2}
+
+header.top{display:flex;flex-direction:column;gap:12px;padding-top:16px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;color:var(--ink-2);text-transform:uppercase}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(24px,6vw,32px);line-height:1.2;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.info{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.info .w2{grid-column:span 2}
+.field label,.field .lab{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:4px}
+input[type=text],input[type=date],textarea{width:100%;font:inherit;color:var(--ink);background:var(--sheet);border:1.5px solid var(--rule);border-radius:8px;padding:9px 11px;min-width:0}
+input:focus,textarea:focus{outline:none;border-color:var(--site);box-shadow:0 0 0 3px color-mix(in srgb,var(--site) 20%,transparent)}
+textarea{min-height:100px;resize:vertical;line-height:1.65}
+textarea::placeholder,input::placeholder{color:color-mix(in srgb,var(--ink-2) 75%,transparent)}
+.weather{display:flex;flex-wrap:wrap;gap:6px}
+.wx{font:inherit;font-size:14px;border:1.5px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+.wx[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.status{font-family:var(--f-mono);font-size:12px;color:var(--ink-2);display:flex;align-items:center;gap:6px}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}
+.status.warn i{background:var(--danger)}
+
+/* 지점 목록 */
+.nav{display:flex;flex-direction:column;gap:10px;background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:12px}
+.navgrp{display:flex;flex-direction:column;gap:6px}
+.navgrp > span{font-family:var(--f-display);font-weight:700;font-size:13px;color:var(--c)}
+.navrow{display:flex;flex-wrap:wrap;gap:6px}
+.np{font:inherit;font-size:14px;border:1.5px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:8px;padding:5px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.np .n{font-family:var(--f-mono);font-size:11px;color:var(--ink-2)}
+.np.done{border-color:var(--c);background:var(--cs)}
+.np.done::after{content:"✓";color:var(--c);font-weight:700}
+.np[aria-current="page"]{box-shadow:inset 0 -3px 0 var(--c);border-color:var(--c)}
+
+.site-head{display:flex;flex-direction:column;gap:6px;border-left:6px solid var(--site);padding:4px 0 4px 14px}
+.site-head h2{font-family:var(--f-display);font-weight:800;font-size:24px;margin:0;line-height:1.25;text-wrap:balance}
+.site-head p{margin:0;color:var(--ink-2);font-size:14.5px;max-width:62ch}
+.strata{font-family:var(--f-mono);font-size:12px;color:var(--site);letter-spacing:.04em}
+
+.check{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13.5px;color:var(--ink-2)}
+.check span::before{content:"○ ";color:var(--rule)}
+.check span.ok{color:var(--ink)}
+.check span.ok::before{content:"● ";color:var(--site)}
+
+.refs{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.refs figure{margin:0;display:flex;flex-direction:column;gap:4px}
+.refs img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;border:1px solid var(--rule);cursor:zoom-in;max-width:100%}
+.refs figcaption{font-size:12.5px;color:var(--ink-2)}
+
+section.block{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.block h3{margin:0;font-family:var(--f-display);font-weight:700;font-size:17px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.block h3 .hint{font-family:var(--f-body);font-weight:400;font-size:13px;color:var(--ink-2)}
+
+.slots{display:flex;flex-direction:column;gap:14px}
+.slot{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:12px;align-items:start;padding-top:12px;border-top:1px dashed var(--rule)}
+.slot:first-child{border-top:0;padding-top:0}
+.slot-lab{grid-column:1/-1;font-family:var(--f-display);font-weight:700;font-size:14px;color:var(--site);margin-bottom:-4px}
+.simg{display:flex;flex-direction:column;gap:6px;min-width:0}
+.empty{aspect-ratio:4/3;max-width:100%;border:1.5px dashed var(--rule);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px;background:repeating-linear-gradient(0deg,transparent 0 19px,var(--grid) 19px 20px),repeating-linear-gradient(90deg,transparent 0 19px,var(--grid) 19px 20px)}
+.thumb{position:relative;aspect-ratio:4/3;max-width:100%;width:100%;border-radius:8px;overflow:hidden;border:1px solid var(--rule);background:var(--grid);cursor:zoom-in;padding:0}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.kind{position:absolute;left:6px;top:6px;font-family:var(--f-mono);font-size:10.5px;background:rgba(20,26,25,.75);color:#fff;border-radius:4px;padding:1px 6px}
+.mact{display:flex;flex-wrap:wrap;gap:6px}
+.mini{font:inherit;font-size:12.5px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink-2);border-radius:6px;padding:4px 8px;cursor:pointer}
+.mini.del{color:var(--danger)}
+.slot textarea{min-height:100%;height:100%}
+.stext{display:flex;flex-direction:column;min-width:0;align-self:stretch}
+.stext textarea{flex:1;min-height:120px}
+
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-weight:600;font-size:15px;border-radius:9px;padding:9px 14px;cursor:pointer;border:1.5px solid var(--site);background:var(--site);color:var(--sheet);display:inline-flex;align-items:center;gap:8px}
+.btn.sm{font-size:14px;padding:7px 11px}
+.btn.ghost{background:transparent;color:var(--site)}
+.btn.plain{border-color:var(--rule);background:var(--sheet);color:var(--ink)}
+.btn.danger{border-color:var(--danger);background:transparent;color:var(--danger)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn:focus-visible,button:focus-visible{outline:3px solid color-mix(in srgb,var(--site) 55%,transparent);outline-offset:2px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:14.5px;font-weight:500;border:1.5px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:6px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--site);border-color:var(--site);color:var(--sheet)}
+.chip.custom{border-style:dashed}
+.addkw{display:flex;gap:8px}
+.addkw input{flex:1;min-width:0;font-size:14.5px}
+.kwnotes{display:flex;flex-direction:column;gap:12px}
+.kwnote{border-left:3px solid var(--site);padding-left:12px;display:flex;flex-direction:column;gap:6px}
+.kwnote label{font-weight:600;font-size:15px}
+.kwnote label b{font-family:var(--f-display);color:var(--site)}
+.kwnote textarea{min-height:76px}
+.kwempty{font-size:14px;color:var(--ink-2);margin:0}
+
+.pager{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+
+.rep{display:flex;flex-direction:column;gap:16px}
+.rep-site{border-top:4px solid var(--c);padding-top:10px;display:flex;flex-direction:column;gap:8px}
+.rep-site h3{margin:0;font-family:var(--f-display);font-size:18px}
+.rep-site h4{margin:4px 0 0;font-size:14px;color:var(--ink-2);font-weight:600}
+.rep-site p{margin:0;white-space:pre-wrap}
+.rep-obs{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px;align-items:start}
+.rep-obs img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;border:1px solid var(--rule)}
+.muted{color:var(--ink-2)}
+.note{font-size:13.5px;color:var(--ink-2);margin:0}
+.confirm{border:1.5px solid var(--danger);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--sheet)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;z-index:40;max-width:calc(100% - 32px)}
+
+.modal{position:fixed;inset:0;z-index:30;background:var(--paper);display:flex;flex-direction:column;
+  padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));gap:10px}
+.mbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:space-between}
+.mbar h3{margin:0;font-family:var(--f-display);font-size:17px}
+.tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--rule);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{outline:3px solid var(--site);outline-offset:2px}
+.tool{font:inherit;font-size:13.5px;border:1.5px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tool[aria-pressed="true"]{border-color:var(--site);background:var(--site-soft)}
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.stage canvas{max-width:100%;max-height:100%;background:#fff;border-radius:6px;border:1px solid var(--rule);touch-action:none;cursor:crosshair}
+.zoom{position:fixed;inset:0;z-index:35;background:rgba(10,14,13,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.zoom img{max-width:100%;max-height:80vh;object-fit:contain;border-radius:6px}
+.zoom p{color:#e8ece8;margin:0;font-family:var(--f-hand);font-size:24px;text-align:center}
+.zoom .btn{border-color:#e8ece8;color:#e8ece8;background:transparent}
+@media (max-width:520px){.info{grid-template-columns:repeat(2,minmax(0,1fr))}.info .w2{grid-column:1/-1}.slot{grid-template-columns:1fr}.stext textarea{min-height:110px}.rep-obs{grid-template-columns:90px minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){.egg.shake .shell,.egg.hatch .baby{animation:none}}
+</style>
+
+<div class="eggbar"><div class="in">
+  <svg class="egg" id="egg" viewBox="0 0 60 72" role="img" aria-label="공룡알 부화 진행"></svg>
+  <div class="egginfo">
+    <div class="egghead"><b>공룡알 부화</b><span class="eggcount" id="eggCount"></span></div>
+    <div class="pips" id="pips"></div>
+    <div class="eggmsg" id="eggMsg"></div>
+  </div>
+</div></div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">화성 국가지질공원 · 야외지질 답사</div>
+    <h1>국가지질공원 탐사 기록장</h1>
+    <div class="info">
+      <div class="field"><label for="sno">학번</label><input type="text" id="sno" inputmode="numeric" placeholder="20315" autocomplete="off"></div>
+      <div class="field"><label for="sname">이름</label><input type="text" id="sname" placeholder="이름" autocomplete="off"></div>
+      <div class="field w2"><label for="sdate">답사일</label><input type="date" id="sdate"></div>
+      <div class="field w2"><span class="lab">날씨</span><div class="weather" id="weather"></div></div>
+      <div class="field w2"><label for="swx">기온·현장 상태</label><input type="text" id="swx" placeholder="예) 18℃, 바닥이 젖어 있음" autocomplete="off"></div>
+    </div>
+    <div class="status" id="status"><i></i><span>이 기기에 자동 저장돼요</span></div>
+  </header>
+
+  <nav class="nav" id="nav" aria-label="답사 지점 목록"></nav>
+  <main id="main" class="wrap" style="gap:16px"></main>
+</div>
+
+<input type="file" id="photoInput" accept="image/*" hidden>
+<input type="file" id="backupInput" accept="application/json,.json" hidden>
+
+<script>
+/* =========================================================
+   선생님이 바꾸는 곳
+   - 지점 이름·순서: SITES
+   - 참고 사진: 페이지와 같은 폴더의 images/ 에 "지점id.jpg" (예: images/d1.jpg)
+     한 지점에 여러 장이면 ref: ["images/d1.jpg","images/d1-2.jpg"] 처럼 적기
+   - 완성 조건: RULE
+   ========================================================= */
+const REF_DIR = "images/";
+const KEYWORDS = ["퇴적암","화성암","편마암","층리","엽리","사층리","단층","습곡","관입","포획","하도구조","인편상구조","풍화","차별 침식","타포니"];
+const AREAS = {
+  dino: { name: "고정리 공룡알 화석산지", short: "공룡알 화석지", keywords: KEYWORDS },
+  uum:  { name: "우음도", short: "우음도", keywords: KEYWORDS }
+};
+const GOAL = 8;   // 알이 부화하는 데 필요한 완성 지점 수 (어느 지점이든 상관없음)
+const SITES = [
+  { id:"d0", area:"dino", name:"고정리 공룡알 화석지로 들어가며" },
+  { id:"d1", area:"dino", name:"상한염" },
+  { id:"d2", area:"dino", name:"중한염" },
+  { id:"d3", area:"dino", name:"둥지바위" },
+  { id:"d4", area:"dino", name:"도랑바위" },
+  { id:"d5", area:"dino", name:"동굴바위" },
+  { id:"d6", area:"dino", name:"잘린바위" },
+  { id:"u1", area:"uum",  name:"구부러진 바위" },
+  { id:"u2", area:"uum",  name:"흰 띠 바위" },
+  { id:"u3", area:"uum",  name:"자르고 잘린 바위" },
+  { id:"u4", area:"uum",  name:"뜯긴 바위" }
+];
+const SLOTS = 3;                                       // 지점별 관찰 칸 수
+const RULE  = { slots: 1, learned: true, keywords: 1 }; // 지점 완성 조건
+const WEATHER = ["맑음","구름 조금","흐림","비","바람 강함"];
+
+/* ---------- 상태 ---------- */
+const blankSlot = () => ({ src:"", orig:"", type:"", text:"" });
+const blankSite = () => ({ slots: Array.from({length:SLOTS}, blankSlot), learned:"", questions:"", kw:{}, stash:{}, custom:[] });
+const blankState = () => ({ v:2, info:{ no:"", name:"", date:"", weather:"", wx:"" }, sites:Object.fromEntries(SITES.map(s=>[s.id, blankSite()])), end:{ learned:"", more:"" }, doneAt:{} });
+let state = blankState();
+let view = "d0";
+
+function normalize(d){
+  const b = blankState();
+  if(!d || typeof d !== "object") return b;
+  b.info = Object.assign(b.info, d.info || {});
+  b.end = Object.assign(b.end, d.end || {});
+  b.doneAt = d.doneAt || {};
+  for(const s of SITES){
+    const src = (d.sites || {})[s.id];
+    if(!src) continue;
+    const x = Object.assign(blankSite(), src);
+    x.slots = Array.from({length:SLOTS}, (_,i) => Object.assign(blankSlot(), (src.slots || [])[i] || {}));
+    b.sites[s.id] = x;
+  }
+  return b;
+}
+
+/* ---------- 저장 ---------- */
+const DB = { db:null };
+function idbOpen(){ return new Promise((res,rej)=>{ try{ const r=indexedDB.open("hwaseong-fieldbook",1); r.onupgradeneeded=()=>r.result.createObjectStore("kv"); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);}catch(e){rej(e)} }) }
+function idbGet(k){ return new Promise(res=>{ try{ const q=DB.db.transaction("kv").objectStore("kv").get(k); q.onsuccess=()=>res(q.result??null); q.onerror=()=>res(null);}catch(e){res(null)} }) }
+function idbSet(k,v){ return new Promise((res,rej)=>{ try{ const t=DB.db.transaction("kv","readwrite"); t.objectStore("kv").put(v,k); t.oncomplete=()=>res(); t.onerror=()=>rej(t.error);}catch(e){rej(e)} }) }
+const statusEl = document.getElementById("status");
+function setStatus(t, warn){ statusEl.classList.toggle("warn", !!warn); statusEl.querySelector("span").textContent = t; }
+let saveTimer;
+function save(){
+  refreshProgress();
+  clearTimeout(saveTimer); setStatus("저장하는 중…");
+  saveTimer = setTimeout(async () => {
+    try{ if(!DB.db) throw 0; await idbSet("state2", JSON.stringify(state)); const t=new Date(); setStatus(`이 기기에 저장됨 · ${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")}`); }
+    catch(e){ setStatus("이 브라우저에는 저장되지 않아요. 보고서 탭에서 백업 파일을 꼭 저장하세요.", true); }
+  }, 500);
+}
+
+/* ---------- 유틸 ---------- */
+const $ = (s,r=document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function el(tag, attrs={}, ...kids){
+  const n = document.createElement(tag);
+  for(const [k,v] of Object.entries(attrs)){
+    if(k==="class") n.className=v; else if(k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else if(v===true) n.setAttribute(k,""); else if(v!==false && v!=null) n.setAttribute(k,v);
+  }
+  for(const c of kids.flat()) if(c!=null && c!==false) n.append(c.nodeType ? c : document.createTextNode(c));
+  return n;
+}
+function toast(m){ const t=el("div",{class:"toast",role:"status"},m); document.body.append(t); setTimeout(()=>t.remove(),2600); }
+const ICON = {
+  camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h3l2-3h8l2 3h3v12H3z"/><circle cx="12" cy="13" r="4"/></svg>',
+  pen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></svg>',
+  save:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-5-5 5 5 5-5M4 21h16"/></svg>',
+  open:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9m-5 5 5-5 5 5M4 3h16"/></svg>'
+};
+function iconBtn(cls, icon, label, onclick){ const b=el("button",{class:"btn "+cls, type:"button", onclick}); b.innerHTML=ICON[icon]; b.append(label); return b; }
+const siteIdx = id => SITES.findIndex(s=>s.id===id);
+
+async function saveFile(filename, data, mime){
+  try{
+    if(window.claude && typeof window.claude.use==="function"){
+      const d = await window.claude.use("downloads");
+      if(d){ try{ await d.save({filename, data:new Blob([data],{type:mime})}); toast("파일을 저장했어요"); return; }
+        catch(e){ if(e&&e.code==="declined"){ toast("저장을 취소했어요"); return; } if(e&&e.code==="rate_limited"){ toast("잠시 후 다시 눌러 주세요"); return; } } }
+    }
+  }catch(e){}
+  try{ const url=URL.createObjectURL(new Blob([data],{type:mime})); const a=el("a",{href:url,download:filename}); document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000); toast("파일을 저장했어요"); }
+  catch(e){ toast("이 화면에서는 파일 저장이 안 돼요"); }
+}
+
+/* ---------- 완성 판정 ---------- */
+function siteStatus(id){
+  const D = state.sites[id];
+  const slots = D.slots.filter(s => s.src && s.text.trim()).length;
+  const learned = !!D.learned.trim();
+  const kws = Object.values(D.kw).filter(v => v.trim()).length;
+  return { slots, learned, kws, complete: slots>=RULE.slots && (!RULE.learned || learned) && kws>=RULE.keywords };
+}
+
+/* ---------- 공룡알 부화 ---------- */
+const CRACKS = [
+  "M30,6 L27,13 L31,17",
+  "M50,24 L44,27 L46,32",
+  "M9,30 L15,33 L13,38",
+  "M31,17 L26,23 L30,28",
+  "M46,32 L40,36 L43,41",
+  "M13,38 L19,42 L16,47",
+  "M30,28 L34,34 L29,40"
+];
+const EGG_PATH = "M30,4 C46,4 56,26 56,42 C56,58 44,68 30,68 C16,68 4,58 4,42 C4,26 14,4 30,4 Z";
+const SPECKS = [[20,20,1.6],[38,15,1.2],[44,46,1.8],[16,52,1.4],[33,58,1.2],[24,40,1.1],[47,34,1],[12,44,1]];
+function babySVG(){
+  // 알에서 고개를 내민 아기 뿔공룡
+  return `<g class="baby">
+    <ellipse cx="30" cy="22" rx="17" ry="10" fill="#e0a24a" stroke="#8a5a22" stroke-width="1"/>
+    <circle cx="16" cy="18" r="2.2" fill="#e0a24a" stroke="#8a5a22" stroke-width=".8"/><circle cx="44" cy="18" r="2.2" fill="#e0a24a" stroke="#8a5a22" stroke-width=".8"/>
+    <ellipse cx="30" cy="42" rx="15" ry="14" fill="#8fbf6a" stroke="#4d7a36" stroke-width="1"/>
+    <ellipse cx="30" cy="29" rx="12" ry="10.5" fill="#8fbf6a" stroke="#4d7a36" stroke-width="1"/>
+    <path d="M28.5,20 L30,15.5 L31.5,20 Z" fill="#f3e6c4" stroke="#8a5a22" stroke-width=".6"/>
+    <circle cx="25" cy="27.5" r="2.4" fill="#1e2624"/><circle cx="35" cy="27.5" r="2.4" fill="#1e2624"/>
+    <circle cx="25.8" cy="26.7" r=".8" fill="#fff"/><circle cx="35.8" cy="26.7" r=".8" fill="#fff"/>
+    <path d="M26.5,32 L30,36.5 L33.5,32 Z" fill="#e8cf7c" stroke="#9a7a2a" stroke-width=".6"/>
+    <circle cx="21.5" cy="31.5" r="1.8" fill="#f2a3a3" opacity=".7"/><circle cx="38.5" cy="31.5" r="1.8" fill="#f2a3a3" opacity=".7"/>
+    <ellipse cx="17" cy="42" rx="3" ry="2.2" fill="#8fbf6a" stroke="#4d7a36" stroke-width=".8"/><ellipse cx="43" cy="42" rx="3" ry="2.2" fill="#8fbf6a" stroke="#4d7a36" stroke-width=".8"/>
+  </g>`;
+}
+function eggSVG(n){
+  const shellFill = `fill="#efe3c8" stroke="#7a5a44" stroke-width="1.4"`;
+  const specks = SPECKS.map(([x,y,r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#b89a74" opacity=".55"/>`).join("");
+  if(n >= GOAL){
+    const bottom = "M4,44 L10,37 L16,45 L22,36 L28,44 L34,36 L40,44 L46,37 L52,44 L56,43 C56,58 44,68 30,68 C16,68 4,58 4,44 Z";
+    return `<g class="shell">${babySVG()}<path d="${bottom}" ${shellFill}/>
+      <circle cx="16" cy="54" r="1.4" fill="#b89a74" opacity=".55"/><circle cx="40" cy="58" r="1.2" fill="#b89a74" opacity=".55"/>
+      <g transform="rotate(-24 22 10)"><path d="M14,14 C15,6 22,2 30,3 C34,3 37,5 39,8 L35,11 L31,8 L27,12 L22,9 L18,13 Z" ${shellFill}/></g>
+      <path d="M52,6 l1.5,3.5 3.5,1.5 -3.5,1.5 -1.5,3.5 -1.5,-3.5 -3.5,-1.5 3.5,-1.5 Z" fill="#f0c060"/>
+      <path d="M6,12 l1,2.4 2.4,1 -2.4,1 -1,2.4 -1,-2.4 -2.4,-1 2.4,-1 Z" fill="#f0c060"/></g>`;
+  }
+  const cracks = CRACKS.map((d,i) => `<path class="crack${i < n ? " on" : ""}" d="${d}" fill="none" stroke="#5a4632" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/>`).join("");
+  const peek = n >= GOAL-1 ? `<ellipse cx="35" cy="35" rx="3.6" ry="2.8" fill="#2a2420"/><circle cx="35.6" cy="34.6" r="1.4" fill="#fff"/><circle cx="35.2" cy="35" r=".8" fill="#1e2624"/>` : "";
+  return `<g class="shell"><path d="${EGG_PATH}" ${shellFill}/>${specks}${cracks}${peek}</g>`;
+}
+let shown = null, lastEgg = -1;
+function celebrate(){
+  const t = new Date(state.allAt || Date.now());
+  const svg = `<svg viewBox="-4 -4 68 76" aria-hidden="true">${eggSVG(GOAL)}</svg>`;
+  const c = el("div",{class:"celebrate", role:"dialog", "aria-modal":"true", "aria-label":"부화 성공"});
+  c.innerHTML = svg;
+  c.append(el("h2",{},"부화 성공!"),
+    el("p",{class:"who"}, `${state.info.no} ${state.info.name}`.trim() || "탐사대원"),
+    el("p",{}, `${t.getMonth()+1}월 ${t.getDate()}일 ${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")} · ${SITES.filter(s=>siteStatus(s.id).complete).length}곳 완성`),
+    el("p",{class:"note"},"이 화면을 선생님께 보여주세요."),
+    el("button",{class:"btn", type:"button", onclick:()=>c.remove()},"닫기"));
+  document.body.append(c); c.querySelector("button").focus();
+}
+function refreshProgress(){
+  const st = SITES.map(s => siteStatus(s.id).complete);
+  const done = st.filter(Boolean).length;
+  const n = Math.min(done, GOAL), bonus = Math.max(0, done - GOAL);
+  const egg = $("#egg");
+  if(n !== lastEgg){
+    egg.innerHTML = eggSVG(n);
+    if(lastEgg >= 0 && shown){
+      egg.classList.remove("shake","hatch"); void egg.getBBox();
+      if(n > lastEgg) egg.classList.add(n >= GOAL ? "hatch" : "shake");
+    }
+    lastEgg = n;
+  }
+  $("#eggCount").innerHTML = `<em>${n}</em> / ${GOAL}${bonus ? ` · 보너스 +${bonus}` : ""}`;
+  const pips = $("#pips");
+  if(pips.children.length !== GOAL){ pips.innerHTML = ""; for(let i=0;i<GOAL;i++) pips.append(el("span",{class:"pip"})); }
+  [...pips.children].forEach((p,i) => p.classList.toggle("on", i < n));
+  const msg = $("#eggMsg"); msg.innerHTML = "";
+  if(n >= GOAL){
+    if(!state.allAt) state.allAt = Date.now();
+    msg.append("부화 성공! ", el("button",{type:"button", onclick:celebrate},"부화 인증 보기"));
+  } else {
+    delete state.allAt;
+    msg.textContent = n === 0 ? `지점 기록을 완성할 때마다 알에 금이 가요. ${GOAL}곳이면 부화!` : n === GOAL-1 ? "안에서 누가 보고 있어요… 한 곳만 더!" : `부화까지 ${GOAL-n}곳 남았어요`;
+  }
+  // 새로 완성된 지점 알림
+  if(shown){
+    const j = st.findIndex((v,i) => v && !shown[i]);
+    if(j >= 0){
+      if(n >= GOAL && done === GOAL) setTimeout(celebrate, 700);
+      else toast(n >= GOAL ? `${SITES[j].name} 완성! 보너스 +${bonus}` : `${SITES[j].name} 완성! 알에 금이 갔어요 (${n}/${GOAL})`);
+    }
+  }
+  SITES.forEach((s,i)=>{ if(st[i] && !state.doneAt[s.id]) state.doneAt[s.id] = Date.now(); });
+  shown = st;
+  document.querySelectorAll(".np[data-id]").forEach(b => b.classList.toggle("done", siteStatus(b.dataset.id).complete));
+}
+
+/* ---------- 지점 목록 ---------- */
+function buildNav(){
+  const nav = $("#nav"); nav.innerHTML = "";
+  for(const [aid, A] of Object.entries(AREAS)){
+    const row = el("div",{class:"navrow"});
+    SITES.forEach((s,i) => { if(s.area===aid) row.append(el("button",{class:"np", type:"button", "data-id":s.id, onclick:()=>show(s.id)}, el("span",{class:"n"}, String(i+1)), s.name)); });
+    nav.append(el("div",{class:"navgrp", style:`--c:var(--${aid});--cs:var(--${aid}-soft)`}, el("span",{}, A.short), row));
+  }
+  nav.append(el("div",{class:"navgrp", style:"--c:var(--end);--cs:var(--end-soft)"}, el("span",{},"정리"),
+    el("div",{class:"navrow"},
+      el("button",{class:"np", type:"button", "data-v":"end", onclick:()=>show("end")}, "마무리"),
+      el("button",{class:"np", type:"button", "data-v":"report", onclick:()=>show("report")}, "보고서·백업"))));
+}
+function markNav(){
+  document.querySelectorAll(".np").forEach(b => { const v = b.dataset.id || b.dataset.v; if(v===view) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+}
+
+/* ---------- 사진 ---------- */
+function loadImg(src){ return new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=src; }) }
+function readFile(f){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(f); }) }
+async function shrink(u, max=1400, q=.78){ const img=await loadImg(u); const k=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)); const c=document.createElement("canvas"); c.width=Math.round(img.naturalWidth*k); c.height=Math.round(img.naturalHeight*k); c.getContext("2d").drawImage(img,0,0,c.width,c.height); return c.toDataURL("image/jpeg",q); }
+let photoTarget = null;
+const photoInput = $("#photoInput");
+photoInput.addEventListener("change", async () => {
+  const f = photoInput.files[0]; photoInput.value = ""; if(!f || !photoTarget) return;
+  const { id, i } = photoTarget; setStatus("사진 정리하는 중…");
+  try{ const src = await shrink(await readFile(f)); Object.assign(state.sites[id].slots[i], { src, orig:"", type:"photo" }); }
+  catch(e){ toast("사진을 읽지 못했어요"); }
+  if(view === id) renderSlots(); save();
+});
+
+/* ---------- 지점 화면 ---------- */
+function renderSite(id){
+  const S = SITES[siteIdx(id)], A = AREAS[S.area], D = state.sites[id], idx = siteIdx(id);
+  const main = $("#main"); main.innerHTML = "";
+
+  main.append(el("div",{class:"site-head"},
+    el("div",{class:"strata"}, `${idx+1} / ${SITES.length} · ${A.short}`),
+    el("h2",{}, S.name),
+    S.guide ? el("p",{}, S.guide) : null,
+    el("div",{class:"check", id:"check"})));
+
+  // 참고 사진 (있을 때만 보임)
+  const refs = el("div",{class:"refs", id:"refs", hidden:true});
+  const list = S.ref || [REF_DIR + id + ".jpg"];
+  list.forEach((src, k) => {
+    const img = el("img",{src, alt:`${S.name} 참고 사진`, loading:"lazy"});
+    const fig = el("figure",{hidden:true}, img, el("figcaption",{}, list.length>1 ? `참고 사진 ${k+1}` : "참고 사진"));
+    img.addEventListener("load", () => { fig.hidden = false; refs.hidden = false; });
+    img.addEventListener("error", () => fig.remove());
+    img.addEventListener("click", () => zoom(src, `${S.name} 참고 사진`));
+    refs.append(fig);
+  });
+  main.append(refs);
+
+  main.append(el("section",{class:"block"},
+    el("h3",{}, "관찰 기록", el("span",{class:"hint"},"칸마다 사진이나 스케치 한 장, 그리고 오감을 이용한 관찰 기록")),
+    el("div",{class:"slots", id:"slots"})));
+
+  const area = (key, title, hint, ph) => {
+    const ta = el("textarea",{id:`${id}-${key}`, placeholder:ph}); ta.value = D[key];
+    ta.addEventListener("input", () => { D[key] = ta.value; save(); renderCheck(); });
+    return el("section",{class:"block"}, el("h3",{}, el("label",{for:`${id}-${key}`}, title), el("span",{class:"hint"}, hint)), ta);
+  };
+  main.append(area("learned","알게 된 내용","관찰을 바탕으로 해석하거나, 설명을 듣고 이해한 것","예) 자갈의 모서리가 둥근 것은 물에 실려 오래 운반되었기 때문이다."));
+  main.append(area("questions","더 알고 싶은 것","궁금해진 점을 질문으로","예) 왜 이 바위에서만 이런 모양이 보일까?"));
+
+  const addIn = el("input",{type:"text", id:`${id}-addkw`, placeholder:"목록에 없는 키워드 직접 추가", "aria-label":"키워드 직접 추가"});
+  const add = () => { const v=addIn.value.trim(); if(!v) return; if(!A.keywords.includes(v) && !D.custom.includes(v)) D.custom.push(v); if(!(v in D.kw)) D.kw[v] = D.stash[v] || ""; addIn.value=""; renderKeywords(); save(); const t=document.getElementById(kwId(v)); if(t) t.focus(); };
+  addIn.addEventListener("keydown", e => { if(e.key==="Enter"){ e.preventDefault(); add(); } });
+  main.append(el("section",{class:"block"},
+    el("h3",{}, "이 지점에서 배운 키워드", el("span",{class:"hint"},"알게 된 키워드를 고르고, 무엇을 알게 되었는지 적기")),
+    el("div",{class:"chips", id:"chips"}),
+    el("div",{class:"addkw"}, addIn, el("button",{class:"btn plain sm", type:"button", onclick:add},"추가")),
+    el("div",{class:"kwnotes", id:"kwnotes"})));
+
+  const prev = SITES[idx-1], next = SITES[idx+1];
+  main.append(el("div",{class:"pager"},
+    prev ? el("button",{class:"btn plain", type:"button", onclick:()=>{show(prev.id);window.scrollTo({top:0})}}, "← "+prev.name) : el("span"),
+    el("button",{class:"btn", type:"button", onclick:()=>{show(next?next.id:"end");window.scrollTo({top:0})}}, (next?next.name:"마무리")+" →")));
+
+  renderSlots(); renderKeywords(); renderCheck();
+}
+function renderCheck(){
+  const c = $("#check"); if(!c) return;
+  const s = siteStatus(view); c.innerHTML = "";
+  c.append(el("span",{class: s.slots>=RULE.slots ? "ok":""}, `사진·관찰 ${s.slots}/${SLOTS}칸`));
+  if(RULE.learned) c.append(el("span",{class: s.learned ? "ok":""}, "알게 된 내용"));
+  c.append(el("span",{class: s.kws>=RULE.keywords ? "ok":""}, `키워드 서술 ${s.kws}개`));
+  c.append(el("span",{class: s.complete ? "ok":"", style:"font-weight:600"}, s.complete ? "완성! 알에 금이 하나 더" : `완성 조건: 사진+관찰 ${RULE.slots}칸, 알게 된 내용, 키워드 ${RULE.keywords}개`));
+}
+function renderSlots(){
+  const box = $("#slots"); if(!box) return;
+  const id = view, D = state.sites[id]; box.innerHTML = "";
+  D.slots.forEach((S, i) => {
+    let media;
+    if(S.src){
+      const acts = el("div",{class:"mact"},
+        el("button",{class:"mini", type:"button", onclick:()=>openSketch(id,i)}, S.type==="photo" ? "위에 표시하기" : "이어 그리기"),
+        el("button",{class:"mini", type:"button", onclick:()=>{ photoTarget={id,i}; photoInput.click(); }}, "사진 바꾸기"),
+        S.orig ? el("button",{class:"mini", type:"button", onclick:()=>{ S.src=S.orig; S.orig=""; renderSlots(); save(); }}, "표시 지우기") : null,
+        el("button",{class:"mini del", type:"button", onclick:()=>{ Object.assign(S,{src:"",orig:"",type:""}); renderSlots(); save(); renderCheck(); }}, "삭제"));
+      media = el("div",{class:"simg"},
+        el("button",{class:"thumb", type:"button", "aria-label":"크게 보기", onclick:()=>zoom(S.src, S.text.split("\n")[0])},
+          el("img",{src:S.src, alt:`관찰 ${i+1}`}), el("span",{class:"kind"}, S.type==="photo" ? (S.orig?"사진+표시":"사진") : "스케치")),
+        acts);
+    } else {
+      media = el("div",{class:"simg"}, el("div",{class:"empty"},
+        iconBtn("sm", "camera", "사진", ()=>{ photoTarget={id,i}; photoInput.click(); }),
+        iconBtn("ghost sm", "pen", "스케치", ()=>openSketch(id,i))));
+    }
+    const ta = el("textarea",{id:`${id}-s${i}`, "aria-label":`관찰 ${i+1} 내용`, placeholder: i===0 ? "보이는 것(색, 알갱이 크기, 무늬 방향, 크기 cm), 만져지는 느낌, 소리, 냄새… 오감으로 느낀 그대로 적어요" : "다른 부분이나 다른 각도에서 본 것"});
+    ta.value = S.text; ta.addEventListener("input", () => { S.text = ta.value; save(); renderCheck(); });
+    box.append(el("div",{class:"slot"}, el("div",{class:"slot-lab"}, `관찰 ${i+1}`), media, el("div",{class:"stext"}, ta)));
+  });
+}
+const kwId = k => `kw-${view}-${[...k].map(c=>c.charCodeAt(0).toString(36)).join("")}`;
+function renderKeywords(){
+  const S = SITES[siteIdx(view)], A = AREAS[S.area], D = state.sites[view];
+  const chips = $("#chips"), notes = $("#kwnotes"); if(!chips) return;
+  chips.innerHTML = ""; notes.innerHTML = "";
+  [...A.keywords, ...D.custom].forEach(k => {
+    const on = k in D.kw;
+    chips.append(el("button",{class:"chip"+(D.custom.includes(k)?" custom":""), type:"button", "aria-pressed":String(on), onclick:()=>{
+      if(on){ if(D.kw[k].trim()) D.stash[k] = D.kw[k]; delete D.kw[k]; } else { D.kw[k] = D.stash[k] || ""; delete D.stash[k]; }
+      renderKeywords(); save(); renderCheck();
+      if(!on){ const t=document.getElementById(kwId(k)); if(t) t.focus(); }
+    }}, k));
+  });
+  const sel = Object.keys(D.kw);
+  if(!sel.length){ notes.append(el("p",{class:"kwempty"},"키워드를 누르면 여기에 적을 칸이 생겨요.")); return; }
+  sel.forEach(k => {
+    const ta = el("textarea",{id:kwId(k), placeholder:`무엇을 보고 '${k}'에 대해 알게 되었나요?`}); ta.value = D.kw[k];
+    ta.addEventListener("input", () => { D.kw[k] = ta.value; save(); renderCheck(); });
+    notes.append(el("div",{class:"kwnote"}, el("label",{for:kwId(k)}, el("b",{},k), " 에 대해 알게 된 것"), ta));
+  });
+}
+
+/* ---------- 마무리 ---------- */
+function renderEnd(){
+  const main = $("#main"); main.innerHTML = "";
+  main.append(el("div",{class:"site-head"}, el("div",{class:"strata"},"답사를 마치며"), el("h2",{},"마무리"),
+    el("p",{},"오늘 본 지점들을 떠올리며 정리해 보세요. 지점끼리 연결되는 점이 있다면 그것도 좋아요.")));
+  const area = (key, title, ph) => { const ta=el("textarea",{id:`end-${key}`, placeholder:ph, style:"min-height:160px"}); ta.value=state.end[key]; ta.addEventListener("input",()=>{ state.end[key]=ta.value; save(); }); return el("section",{class:"block"}, el("h3",{}, el("label",{for:`end-${key}`}, title)), ta); };
+  main.append(area("learned","오늘 새롭게 보고 배운 점","예) 공룡알 화석지와 우음도는 가까운데도 암석의 모습이 전혀 달랐다. 그 이유는…"));
+  main.append(area("more","돌아가 더 알아볼 점","예) 우음도의 흰 띠는 언제 생겼는지 찾아보고 싶다."));
+  main.append(el("div",{class:"pager"},
+    el("button",{class:"btn plain", type:"button", onclick:()=>{show(SITES[SITES.length-1].id);window.scrollTo({top:0})}}, "← "+SITES[SITES.length-1].name),
+    el("button",{class:"btn", type:"button", onclick:()=>{show("report");window.scrollTo({top:0})}}, "보고서·백업 →")));
+}
+
+/* ---------- 보고서 ---------- */
+function fileStem(){ const n=`${state.info.no.trim()}_${state.info.name.trim()}`.replace(/^_|_$/g,""); return (n||"학생")+"_화성지질답사"; }
+function renderReport(){
+  const main = $("#main"); main.innerHTML = "";
+  const done = SITES.filter(s=>siteStatus(s.id).complete).length;
+  main.append(el("div",{class:"site-head"}, el("div",{class:"strata"},`완성 ${done} / ${SITES.length}`), el("h2",{},"보고서와 백업"),
+    el("p",{},"모든 지점과 마무리를 한 문서로 모았어요. 보고서 파일은 어떤 브라우저에서도 열리고, 거기서 인쇄하거나 PDF로 저장할 수 있어요.")));
+  const ok = state.info.no.trim() && state.info.name.trim();
+  main.append(el("section",{class:"block"}, el("h3",{},"제출용 보고서"),
+    ok ? null : el("p",{class:"note"},"맨 위에 학번과 이름을 먼저 적어 주세요."),
+    el("div",{class:"btnrow"}, iconBtn("", "save", "보고서 파일 저장", ()=>saveFile(`${fileStem()}_보고서.html`, buildReport(), "text/html")))));
+  main.append(el("section",{class:"block"}, el("h3",{},"백업", el("span",{class:"hint"},"기록은 이 기기 브라우저에만 저장돼요")),
+    el("p",{class:"note"},"다른 기기로 옮기거나 브라우저 기록을 지우기 전에 백업 파일을 저장하세요. 불러오면 지금 기록이 백업 내용으로 바뀝니다."),
+    el("div",{class:"btnrow"},
+      iconBtn("ghost", "save", "백업 저장", ()=>saveFile(`${fileStem()}_백업.json`, JSON.stringify(state), "application/json")),
+      iconBtn("ghost", "open", "백업 불러오기", ()=>$("#backupInput").click()),
+      el("button",{class:"btn danger", type:"button", onclick:askClear}, "모두 지우기")),
+    el("div",{id:"confirmSlot"})));
+  const prev = el("section",{class:"block rep"}, el("h3",{},"미리보기"));
+  SITES.forEach((S,i) => {
+    const D = state.sites[S.id], st = siteStatus(S.id);
+    const box = el("div",{class:"rep-site", style:`--c:var(--${S.area})`}, el("h3",{}, `${i+1}. ${S.name} `, st.complete ? el("span",{style:"color:var(--c);font-size:14px"},"● 완성") : null));
+    const used = D.slots.filter(s=>s.src || s.text.trim());
+    if(!used.length) box.append(el("p",{class:"muted"},"관찰 기록 없음"));
+    used.forEach(s => box.append(el("div",{class:"rep-obs"}, s.src ? el("img",{src:s.src, alt:""}) : el("span"), el("p",{class:s.text.trim()?"":"muted"}, s.text.trim()||"(관찰 내용 없음)"))));
+    if(D.learned.trim()){ box.append(el("h4",{},"알게 된 내용")); box.append(el("p",{},D.learned)); }
+    if(D.questions.trim()){ box.append(el("h4",{},"더 알고 싶은 것")); box.append(el("p",{},D.questions)); }
+    const ks = Object.keys(D.kw); if(ks.length){ box.append(el("h4",{},"배운 키워드")); ks.forEach(k=>box.append(el("p",{}, el("b",{},k+" — "), D.kw[k].trim()||"(내용 없음)"))); }
+    prev.append(box);
+  });
+  const e = el("div",{class:"rep-site", style:"--c:var(--end)"}, el("h3",{},"마무리"),
+    el("h4",{},"오늘 새롭게 보고 배운 점"), el("p",{class:state.end.learned.trim()?"":"muted"}, state.end.learned.trim()||"아직 적지 않았어요"),
+    el("h4",{},"돌아가 더 알아볼 점"), el("p",{class:state.end.more.trim()?"":"muted"}, state.end.more.trim()||"아직 적지 않았어요"));
+  prev.append(e);
+  main.append(prev);
+}
+function askClear(){
+  const slot = $("#confirmSlot"); slot.innerHTML = "";
+  slot.append(el("div",{class:"confirm"}, el("p",{style:"margin:0"},"모든 지점의 사진, 스케치, 글이 지워지고 되돌릴 수 없어요. (학번·이름·답사 정보는 남아요)"),
+    el("div",{class:"btnrow"},
+      el("button",{class:"btn danger", type:"button", onclick:()=>{ const info=state.info; state=blankState(); state.info=info; shown=null; save(); renderReport(); toast("기록을 지웠어요"); }}, "네, 모두 지우기"),
+      el("button",{class:"btn plain", type:"button", onclick:()=>slot.innerHTML=""}, "취소"))));
+}
+$("#backupInput").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; if(!f) return;
+  try{ const d = JSON.parse(await f.text()); if(!d || !d.sites) throw 0; state = normalize(d); shown = null; bindInfo(); save(); show("report"); toast("백업을 불러왔어요"); }
+  catch(err){ toast("이 기록장의 백업 파일이 아니에요"); }
+});
+function buildReport(){
+  const I = state.info, p = v => v.trim() ? `<p>${esc(v)}</p>` : `<p class="e">작성하지 않음</p>`;
+  const color = { dino:"#a8482a", uum:"#3f6b5c" };
+  const css = `body{font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif;max-width:820px;margin:0 auto;padding:28px 20px;color:#1e2624;line-height:1.65}
+h1{font-size:25px;margin:0 0 6px}.meta{color:#56605c;margin:0 0 6px}.area{margin:34px 0 0;font-size:20px;border-bottom:2px solid currentColor;padding-bottom:4px}
+section{border-left:5px solid var(--c);padding:2px 0 2px 14px;margin:22px 0;break-inside:auto}h2{margin:0 0 6px;font-size:18px}h3{font-size:14.5px;color:#56605c;margin:14px 0 4px}
+p{margin:0;white-space:pre-wrap}.obs{display:grid;grid-template-columns:220px 1fr;gap:12px;margin:10px 0;break-inside:avoid}img{width:100%;border-radius:6px;border:1px solid #d9ddd4}
+.kw{margin:6px 0}.kw b{color:var(--c)}.e{color:#9aa39e}.done{font-size:13px;color:var(--c)}@media(max-width:560px){.obs{grid-template-columns:1fr}}`;
+  let html = "", lastArea = "";
+  SITES.forEach((S,i) => {
+    const D = state.sites[S.id];
+    if(S.area !== lastArea){ html += `<h2 class="area" style="color:${color[S.area]}">${esc(AREAS[S.area].name)}</h2>`; lastArea = S.area; }
+    const obs = D.slots.filter(s=>s.src||s.text.trim()).map((s,k)=>`<div class="obs">${s.src?`<img src="${s.src}" alt="관찰 ${k+1}">`:"<div></div>"}<div><h3>관찰 ${k+1}</h3>${p(s.text)}</div></div>`).join("") || `<p class="e">관찰 기록 없음</p>`;
+    const ks = Object.keys(D.kw);
+    html += `<section style="--c:${color[S.area]}"><h2>${i+1}. ${esc(S.name)} ${siteStatus(S.id).complete?'<span class="done">● 완성</span>':""}</h2>${obs}
+<h3>알게 된 내용</h3>${p(D.learned)}<h3>더 알고 싶은 것</h3>${p(D.questions)}
+<h3>배운 키워드</h3>${ks.length?ks.map(k=>`<div class="kw"><b>${esc(k)}</b><p>${esc(D.kw[k].trim()||"(내용 없음)")}</p></div>`).join(""):`<p class="e">고른 키워드 없음</p>`}</section>`;
+  });
+  html += `<h2 class="area" style="color:#5b5f8f">마무리</h2><section style="--c:#5b5f8f"><h3>오늘 새롭게 보고 배운 점</h3>${p(state.end.learned)}<h3>돌아가 더 알아볼 점</h3>${p(state.end.more)}</section>`;
+  const done = SITES.filter(s=>siteStatus(s.id).complete).length;
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(fileStem())}</title><style>${css}</style></head><body>
+<h1>화성 국가지질공원 야외지질 답사 보고서</h1><p class="meta">${esc(I.no)} ${esc(I.name)}</p><p class="meta">답사일 ${esc(I.date||"-")} · 날씨 ${esc(I.weather||"-")}${I.wx?` · ${esc(I.wx)}`:""} · 완성 지점 ${done}/${SITES.length}</p>${html}</body></html>`;
+}
+
+/* ---------- 확대 ---------- */
+function zoom(src, cap){
+  const z = el("div",{class:"zoom", role:"dialog", "aria-modal":"true", "aria-label":"크게 보기"}, el("img",{src, alt:cap||""}), cap ? el("p",{},cap) : null, el("button",{class:"btn", type:"button", onclick:()=>z.remove()},"닫기"));
+  z.addEventListener("click", e => { if(e.target===z) z.remove(); });
+  document.body.append(z); z.querySelector("button").focus();
+}
+
+/* ---------- 스케치 ---------- */
+async function openSketch(id, i){
+  const slot = state.sites[id].slots[i];
+  let W = 1200, H = 900, bg = null;
+  if(slot.src){ bg = await loadImg(slot.src); const k=Math.min(1,1600/Math.max(bg.naturalWidth,bg.naturalHeight)); W=Math.round(bg.naturalWidth*k); H=Math.round(bg.naturalHeight*k); }
+  const onPhoto = slot.type === "photo";
+  const base = document.createElement("canvas"); base.width=W; base.height=H; const b=base.getContext("2d");
+  b.fillStyle="#fff"; b.fillRect(0,0,W,H);
+  if(bg) b.drawImage(bg,0,0,W,H);
+  else { b.strokeStyle="#e3e8e1"; b.lineWidth=1; for(let x=0;x<=W;x+=30){b.beginPath();b.moveTo(x+.5,0);b.lineTo(x+.5,H);b.stroke()} for(let y=0;y<=H;y+=30){b.beginPath();b.moveTo(0,y+.5);b.lineTo(W,y+.5);b.stroke()} }
+  const ink = document.createElement("canvas"); ink.width=W; ink.height=H; const ic=ink.getContext("2d"); ic.lineCap="round"; ic.lineJoin="round";
+  const cv = el("canvas",{width:W, height:H, "aria-label":"스케치 영역"}); const vc = cv.getContext("2d");
+  const paint = () => { vc.clearRect(0,0,W,H); vc.drawImage(base,0,0); vc.drawImage(ink,0,0); }; paint();
+  const colors = onPhoto ? ["#ffd400","#ff3b30","#ffffff","#1e2624","#2f7dff"] : ["#1e2624","#a8482a","#2f6fd6","#3f6b5c","#c9a227"];
+  let color = colors[0], size = 6, erase = false; const undo = [];
+  const sw = colors.map(c => el("button",{class:"sw", type:"button", style:`background:${c}`, "aria-label":"펜 색", onclick:()=>{ color=c; erase=false; sync(); }}));
+  const SZ = [3,6,14];
+  const sizes = SZ.map((s,j) => el("button",{class:"tool", type:"button", onclick:()=>{ size=s; sync(); }}, ["가늘게","보통","굵게"][j]));
+  const eraser = el("button",{class:"tool", type:"button", onclick:()=>{ erase=!erase; sync(); }}, "지우개");
+  const undoB = el("button",{class:"tool", type:"button", onclick:()=>{ const s=undo.pop(); if(s){ ic.putImageData(s,0,0); paint(); } }}, "되돌리기");
+  const clearB = el("button",{class:"tool", type:"button", onclick:()=>{ undo.push(ic.getImageData(0,0,W,H)); ic.clearRect(0,0,W,H); paint(); }}, "새로 그린 것 지우기");
+  function sync(){ sw.forEach((x,j)=>x.setAttribute("aria-pressed",String(!erase&&colors[j]===color))); sizes.forEach((x,j)=>x.setAttribute("aria-pressed",String(SZ[j]===size))); eraser.setAttribute("aria-pressed",String(erase)); }
+  sync();
+  let drawing=false, last=null;
+  const pos = e => { const r=cv.getBoundingClientRect(); return [(e.clientX-r.left)*W/r.width, (e.clientY-r.top)*H/r.height]; };
+  function stroke(a,c,e){ const sc=W/(cv.getBoundingClientRect().width||W); const pr=e.pointerType==="pen"&&e.pressure?(.5+e.pressure):1;
+    ic.globalCompositeOperation = erase ? "destination-out" : "source-over"; ic.strokeStyle=color; ic.lineWidth=(erase?size*3:size)*sc*pr;
+    ic.beginPath(); ic.moveTo(a[0],a[1]); ic.lineTo(c[0],c[1]); ic.stroke(); paint(); }
+  cv.addEventListener("pointerdown", e => { e.preventDefault(); cv.setPointerCapture(e.pointerId); if(undo.length>25) undo.shift(); undo.push(ic.getImageData(0,0,W,H)); drawing=true; last=pos(e); stroke(last,last,e); });
+  cv.addEventListener("pointermove", e => { if(!drawing) return; const q=pos(e); stroke(last,q,e); last=q; });
+  cv.addEventListener("pointerup", ()=>drawing=false); cv.addEventListener("pointercancel", ()=>drawing=false);
+  const close = () => { m.remove(); document.body.style.overflow=""; };
+  const done = () => {
+    const out=document.createElement("canvas"); out.width=W; out.height=H; const o=out.getContext("2d"); o.drawImage(base,0,0); o.drawImage(ink,0,0);
+    const src = out.toDataURL("image/jpeg",.85);
+    if(onPhoto){ if(!slot.orig) slot.orig = slot.src; slot.src = src; }
+    else { slot.src = src; slot.type = "sketch"; }
+    close(); renderSlots(); save(); renderCheck(); toast(onPhoto ? "사진에 표시를 저장했어요" : "스케치를 저장했어요");
+  };
+  const m = el("div",{class:"modal", role:"dialog", "aria-modal":"true", "aria-label":"스케치"},
+    el("div",{class:"mbar"}, el("h3",{}, onPhoto ? `관찰 ${i+1} · 사진 위에 표시하기` : `관찰 ${i+1} · 스케치`),
+      el("div",{class:"btnrow"}, el("button",{class:"btn plain", type:"button", onclick:close},"취소"), el("button",{class:"btn", type:"button", onclick:done},"저장"))),
+    el("div",{class:"tools"}, ...sw, el("span",{style:"width:6px"}), ...sizes, eraser, undoB, clearB),
+    el("div",{class:"stage"}, cv),
+    el("p",{class:"note", style:"margin:0"}, onPhoto ? "지층 경계, 휘어진 방향, 자갈 등을 선으로 표시해 보세요. '표시 지우기'로 원래 사진으로 돌아갈 수 있어요." : "옆에 대략의 크기(cm)와 방향을 함께 적어 두면 좋아요."));
+  document.body.append(m); document.body.style.overflow="hidden";
+}
+
+/* ---------- 화면 전환 ---------- */
+function show(v){
+  view = v;
+  const S = SITES[siteIdx(v)];
+  document.body.dataset.area = S ? S.area : v;
+  if(S) renderSite(v); else if(v==="end") renderEnd(); else renderReport();
+  markNav(); refreshProgress();
+  try{ localStorage.setItem("hwaseong-view", v); }catch(e){}
+}
+
+/* ---------- 학생·답사 정보 ---------- */
+function bindInfo(){
+  $("#sno").value = state.info.no; $("#sname").value = state.info.name; $("#sdate").value = state.info.date; $("#swx").value = state.info.wx;
+  document.querySelectorAll(".wx").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.w === state.info.weather)));
+}
+const wbox = $("#weather");
+WEATHER.forEach(w => wbox.append(el("button",{class:"wx", type:"button", "data-w":w, "aria-pressed":"false", onclick:()=>{ state.info.weather = state.info.weather===w ? "" : w; bindInfo(); save(); }}, w)));
+[["sno","no"],["sname","name"],["sdate","date"],["swx","wx"]].forEach(([id,k]) => $("#"+id).addEventListener("input", e => { state.info[k] = e.target.value; save(); }));
+
+/* ---------- 시작 ---------- */
+(async function boot(){
+  buildNav();
+  let v = "d0"; try{ v = localStorage.getItem("hwaseong-view") || "d0"; }catch(e){}
+  if(!(siteIdx(v)>=0 || v==="end" || v==="report")) v = "d0";
+  show(v);
+  try{
+    DB.db = await idbOpen();
+    const raw = await idbGet("state2");
+    if(raw){ state = normalize(JSON.parse(raw)); shown = null; bindInfo(); show(v); setStatus("이전에 적은 기록을 불러왔어요"); }
+    else shown = SITES.map(()=>false);
+  }catch(e){ setStatus("이 브라우저에는 저장되지 않아요. 보고서 탭에서 백업 파일을 꼭 저장하세요.", true); }
+})();
+</script>
